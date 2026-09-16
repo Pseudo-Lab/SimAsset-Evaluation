@@ -248,7 +248,7 @@ Explore → Design → Build → Test → Improve → Share
 - **러너로 참여**: 검사 구현, 에셋 큐레이션, 판정, 문서
 - **청강 참여**: 공개 세션 참여 가능
 
-❗️참여 링크: [가짜연구소 디스코드](https://discord.gg/EPurkhVtp2)
+❗️참여 링크: [가짜연구소 디스코드](https://discord.gg/EPurkHVtp2)
 ❗️커뮤니케이션 채널: 디스코드 #Room-YL
 
 누구나 청강을 통해 모임에 참여하실 수 있습니다.
