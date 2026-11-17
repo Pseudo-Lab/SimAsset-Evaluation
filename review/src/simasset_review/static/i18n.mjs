@@ -1,5 +1,11 @@
 // UI labels only. Authored judgments, names, filenames and source data are never translated.
 export const english = {
+  '닫기':'Close', '그래프 모아보기':'Chart overview', '모아보기':'Overview',
+  '실행 비교':'Compare runs', '기준 실행':'Reference run', '비교 실행':'Comparison run',
+  '같은 검사의 다른 실행이 없습니다.':'No other runs of this test are available.',
+  '영상 시간':'Video time', '함께 재생':'Play both', '함께 일시정지':'Pause both', '처음으로':'Reset',
+  '영상을 재생하지 못했습니다.':'Could not play the videos.',
+  '기준·근거':'Rubric & evidence', '기준·근거 · {count}개 선택':'Rubric & evidence · {count} selected',
   'SimAsset · 결과 검토':'SimAsset · Result review', '검토 내용으로 이동':'Skip to review', 'SimAsset 홈':'SimAsset home',
   '작업 공간':'Workspace', '결과 검토':'Result review', '화면 테마':'Theme',
   '다크':'Dark', '라이트':'Light', '시스템':'System', '결과 새로고침':'Refresh results', '화면 언어':'Language',
