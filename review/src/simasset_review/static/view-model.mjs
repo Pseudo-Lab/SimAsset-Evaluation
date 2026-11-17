@@ -1,4 +1,5 @@
 // Pure presentation rules shared by the browser and regression tests.
+import {searchText} from './unicode.mjs';
 export const originLabel = {team_shared:'팀 공유 결과',local_reproduction:'로컬 재현 결과',fixture:'기능 시험 데이터'};
 export const outcomes = {pass:'통과',fail:'불통과',inconclusive:'보류'};
 export const executionLabel = {completed:'실행 완료',error:'실행 오류',skipped:'대상 아님'};
@@ -13,11 +14,12 @@ export function format(value,precision=5) {
   return value.toLocaleString('ko-KR',{maximumSignificantDigits:precision});
 }
 export function filterRuns(runs,{asset='',test='',version='',origin='',search='',queue='all'}={}) {
-  const query=search.trim().toLowerCase();
+  const query=searchText(search.trim());
+  const aliases={probe:'cavity test',incline:'incline test',decomposed:'convex decomposition',single_hull:'single convex hull',ramp45deg:'45° incline'};
   return runs.filter(r=>(!asset || r.asset===asset) && (!test || r.test_type===test)
     && (!version || versionKey(r)===version) && (!origin || r.origin===origin)
     && (queue!=='unreviewed' || r.judgments===0) && (queue!=='error' || r.execution_status==='error')
-    && (!query || [r.asset,r.test_type,testLabel(r.test_type),r.condition,conditionLabel(r.condition),r.source_run_id,r.run_id].join(' ').toLowerCase().includes(query)));
+    && (!query || searchText([r.asset,r.test_type,testLabel(r.test_type),aliases[r.test_type],r.condition,conditionLabel(r.condition),aliases[r.condition],r.source_run_id,r.run_id].join(' ')).includes(query)));
 }
 export function seriesSegments(points,key) {
   const segments=[]; let current=[];

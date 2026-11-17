@@ -1,9 +1,33 @@
 """Exercise the shipped dashboard queries against real PostgreSQL fixtures."""
 import json
+import importlib.util
 from pathlib import Path
 
 from conftest import edit_csv
 from simasset_review.db import import_bundle, add_judgment
+
+
+def test_english_dashboard_is_current_and_preserves_data_queries():
+    root=Path(__file__).parents[1]
+    spec=importlib.util.spec_from_file_location('grafana_languages',root/'scripts/build_grafana_languages.py')
+    generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+    source=json.loads((root/'grafana/dashboard.json').read_text())
+    english=json.loads((root/'grafana/dashboard-en.json').read_text())
+    assert english==generator.english_dashboard(source)
+    assert english['uid']!=source['uid']
+
+    def data_fields(value):
+        if isinstance(value,dict):
+            for key,item in value.items():
+                if key in ('rawSql','datasource','transformations','matcher','gridPos'):
+                    yield key,item
+                else: yield from data_fields(item)
+        elif isinstance(value,list):
+            for item in value: yield from data_fields(item)
+    assert list(data_fields(source))==list(data_fields(english))
+    for dashboard,language in ((source,'ko'),(english,'en')):
+        assert dashboard['links'][0]['url']==f'http://127.0.0.1:8765/?lang={language}'
+        assert {link['title'] for link in dashboard['links']} >= {'한국어','English'}
 
 
 def dashboard_queries():

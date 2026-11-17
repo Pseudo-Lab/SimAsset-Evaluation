@@ -2,7 +2,7 @@
   "uid": "simasset-local-review",
   "title": "SimAsset · 검사 결과 현황",
   "schemaVersion": 39,
-  "version": 4,
+  "version": 5,
   "editable": false,
   "refresh": "30s",
   "timezone": "browser",
@@ -573,7 +573,7 @@
                 "value": [
                   {
                     "title": "영상·판정 ↗",
-                    "url": "http://127.0.0.1:8765/#${__value.raw}",
+                    "url": "http://127.0.0.1:8765/?lang=ko#${__value.raw}",
                     "targetBlank": true
                   }
                 ]
@@ -963,7 +963,7 @@
                     "value": [
                       {
                         "title": "실행 검토",
-                        "url": "http://127.0.0.1:8765/#${__data.fields.run_id}",
+                        "url": "http://127.0.0.1:8765/?lang=ko#${__data.fields.run_id}",
                         "targetBlank": true
                       }
                     ]
@@ -1181,7 +1181,7 @@
                     "value": [
                       {
                         "title": "영상·판정 ↗",
-                        "url": "http://127.0.0.1:8765/#${__value.raw}",
+                        "url": "http://127.0.0.1:8765/?lang=ko#${__value.raw}",
                         "targetBlank": true
                       }
                     ]
@@ -1221,7 +1221,7 @@
       "title": "결과 검토 · 영상과 판정 ↗",
       "type": "link",
       "icon": "external link",
-      "url": "http://127.0.0.1:8765",
+      "url": "http://127.0.0.1:8765/?lang=ko",
       "targetBlank": true
     },
     {
@@ -1231,6 +1231,22 @@
       "url": "http://127.0.0.1:3015/profile",
       "targetBlank": false,
       "tooltip": "Preferences의 Interface theme에서 Light · Dark · System preference를 선택합니다."
+    },
+    {
+      "title": "한국어",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/d/simasset-local-review",
+      "targetBlank": false,
+      "keepTime": true
+    },
+    {
+      "title": "English",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/d/simasset-local-review-en",
+      "targetBlank": false,
+      "keepTime": true
     }
   ]
 }

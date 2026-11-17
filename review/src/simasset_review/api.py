@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
@@ -29,6 +30,10 @@ class Judgment(BaseModel):
     @classmethod
     def not_blank(cls,v):
         if not v.strip(): raise ValueError('빈 값은 저장할 수 없습니다.')
+        # PostgreSQL UTF8 accepts all Unicode scalar values except NUL. Reject
+        # malformed input before it reaches the driver, without changing valid text.
+        if '\x00' in v or any(0xD800 <= ord(c) <= 0xDFFF for c in v):
+            raise ValueError('지원하지 않는 제어 문자나 잘못된 유니코드가 있습니다.')
         return v.strip()
 
 
@@ -36,6 +41,14 @@ def create_app(settings: Settings | None = None):
     settings = settings or Settings.load()
     app = FastAPI(title='SimAsset Review',version='0.1.0')
     app.add_middleware(TrustedHostMiddleware,allowed_hosts=['127.0.0.1','localhost','::1','testserver'])
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_input(request, error):
+        # Do not echo invalid surrogate input into a UTF-8 response (or echo an
+        # entire private judgment merely to explain a validation failure).
+        return JSONResponse({'detail':[
+            {key:item[key] for key in ('type','loc','msg')} for item in error.errors()
+        ]}, status_code=422)
 
     @app.middleware('http')
     async def same_origin(request:Request, call_next):

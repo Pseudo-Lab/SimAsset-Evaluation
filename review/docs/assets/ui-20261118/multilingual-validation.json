@@ -1,0 +1,93 @@
+{
+  "tested_at": "2026-11-17T21:38:51.614Z",
+  "scope": "local prototype; isolated browser write tests",
+  "python_tests": 92,
+  "node_tests": 8,
+  "browser": {
+    "draft_survived_language_switch": true,
+    "exact_roundtrip": true,
+    "rtl_direction": "rtl",
+    "html_script_elements": 0,
+    "history_count": 2,
+    "old_revision_preserved": true,
+    "new_revision_preserved": true,
+    "boundary5000": {
+      "codePoints": 5000,
+      "counter": "5,000 / 5,000",
+      "message": "",
+      "valid": true
+    },
+    "boundary5001": {
+      "codePoints": 5001,
+      "counter": "5,001 / 5,000",
+      "message": "Enter no more than 5000 Unicode code points.",
+      "valid": false
+    },
+    "mobile": {
+      "controlBounds": [
+        {
+          "label": "Language",
+          "right": 240
+        },
+        {
+          "label": "Theme",
+          "right": 326
+        }
+      ],
+      "language": "en",
+      "metrics": [
+        {
+          "font": "16px",
+          "scrollWidth": 90,
+          "text": "0.0006321mm",
+          "width": 90
+        },
+        {
+          "font": "16px",
+          "scrollWidth": 89,
+          "text": "1.985mm",
+          "width": 89
+        },
+        {
+          "font": "16px",
+          "scrollWidth": 89,
+          "text": "0.128s",
+          "width": 89
+        }
+      ],
+      "pageWidth": 375,
+      "width": 390
+    },
+    "viewport_reset": true,
+    "grafana_link": {
+      "language": "en",
+      "asset": "block_mu03",
+      "run_id": "7101f1cd-50a0-5b16-8f94-b6fe1d15cf69"
+    }
+  },
+  "grafana": {
+    "same_queries": true,
+    "runs": 27,
+    "assets": 7,
+    "errors": 1,
+    "reviewed_runs": 1,
+    "completed": 24,
+    "skipped": 2
+  },
+  "limitations": [
+    "UI translations: Korean and English only",
+    "Unicode sample coverage is not an all-language/font/IME certification",
+    "Lengths count code points, not grapheme clusters",
+    "Leading/trailing whitespace is trimmed, as before"
+  ],
+  "cleanup": {
+    "temporary_database_removed": true,
+    "qa_server_stopped": true,
+    "qa_tabs_closed": true
+  },
+  "main_database": {
+    "runs": 27,
+    "asset_names": 7,
+    "reviewed_runs": 1
+  }
+}

@@ -47,6 +47,19 @@ uv run simasset-review import /absolute/path/to/result-batch \
 
 Grafana는 상단 **테마 설정 → Interface theme → Save preferences**에서 바꿉니다. 오른쪽 위 프로필 메뉴의 **Change theme**에서도 바로 선택할 수 있습니다. Grafana의 선택은 로그인한 사용자 설정으로 저장됩니다. 검토 화면에서 Grafana 링크를 열면 현재 검토 화면의 밝기로 열립니다.
 
+## 화면 언어와 다국어 판정
+
+결과 검토 화면 오른쪽 위에서 **한국어 / English**를 선택합니다. 메뉴·버튼·입력 안내·날짜 표시가 함께 바뀌며, 작성 중인 판정·선택한 근거·검색 조건은 유지됩니다. 선택은 브라우저에 저장됩니다. [한국어 화면](http://127.0.0.1:8765/?lang=ko)과 [영문 화면](http://127.0.0.1:8765/?lang=en) 링크로 바로 열 수도 있습니다.
+
+판정 이유와 평가자 이름은 여러 언어를 섞어 입력할 수 있습니다. 입력한 원문은 자동 번역하지 않으며, 아랍어·히브리어의 글 방향도 처리합니다. 판정 결과는 화면 언어와 관계없이 `pass / fail / inconclusive` 코드로 저장합니다. 평가자·기준 버전은 100자, 판정 이유는 5,000자까지이며 브라우저와 서버가 같은 **Unicode 코드 포인트** 기준으로 계산합니다. 결합 이모지와 조합 문자는 보이는 글자 하나가 여러 코드 포인트일 수 있습니다.
+
+Grafana 상단의 **한국어 / English**로 대시보드를 전환합니다. 두 화면의 조회 쿼리와 데이터는 같습니다. 영문 화면은 `grafana/dashboard.json`과 `scripts/grafana.en.json`에서 생성하며, 한국어 구성을 수정한 뒤 아래 명령으로 함께 갱신합니다.
+
+```bash
+python3 scripts/build_grafana_languages.py
+python3 scripts/build_grafana_languages.py --check
+```
+
 ## 보관과 종료
 
 - `.state/objects/`: 가져온 파일의 내용 기반 사본입니다. 원본 폴더는 변경하지 않습니다.
@@ -89,7 +102,8 @@ Grafana의 DB 계정은 뷰 SELECT만 허용하며 테이블 INSERT/UPDATE 권�
 
 ```bash
 uv run pytest -q
-node --test tests/view-model.test.mjs
+node --test tests/*.test.mjs
+python3 scripts/build_grafana_languages.py --check
 ```
 
 테스트는 `simasset_review_test_...` 임시 DB를 만들고 끝난 뒤 해당 DB만 정리합니다. 실제 시제품 데이터는 지우지 않습니다.

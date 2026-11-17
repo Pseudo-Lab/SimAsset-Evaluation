@@ -248,7 +248,7 @@ button,a,summary {
   flex-shrink:0;
   color:var(--accent);
 }
-.theme-select {
+.theme-select,.language-select {
   width:94px;
   margin:0;
   font-size:12px;
@@ -289,7 +289,7 @@ button,a,summary {
   margin-left:auto;
   display:flex;
   align-items:center;
-  gap:16px;
+  gap:10px;
 }
 .local {
   font-size:12px;
@@ -782,19 +782,23 @@ video {
   margin-bottom:6px;
 }
 .key-metric dd {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  column-gap:4px;
   margin:0;
   font-size:20px;
   letter-spacing:-.04em;
   font-weight:600;
   font-variant-numeric:tabular-nums;
-  overflow-wrap:anywhere;
+  overflow-wrap:normal;
 }
 .key-metric dd span {
   font-size:11px;
   letter-spacing:0;
   font-weight:400;
   color:var(--muted);
-  margin-left:4px;
+  margin-left:0;
 }
 .chart-panel {
   margin:14px 0 0;
@@ -1089,6 +1093,10 @@ video {
 }
 .history-top strong {
   font-size:12px;
+}
+.authored-text {
+  unicode-bidi:plaintext;
+  text-align:start;
 }
 .history p {
   margin:10px 0 6px;
@@ -1389,8 +1397,10 @@ pre {
 }
 @media(max-width:680px) {
   .app-header {
-    height:58px;
-    padding:0 16px;
+    height:auto;
+    min-height:58px;
+    flex-wrap:wrap;
+    padding:10px 16px 0;
     gap:22px;
   }
   .brand {
@@ -1401,6 +1411,9 @@ pre {
     height:28px;
   }
   .app-header nav {
+    order:3;
+    width:100%;
+    height:40px;
     gap:16px;
   }
   .app-header nav a {
@@ -1412,7 +1425,7 @@ pre {
   .header-actions {
     gap:8px;
   }
-  .theme-select {
+  .theme-select,.language-select {
     width:78px;
     font-size:11px;
     padding:6px;
@@ -1590,4 +1603,17 @@ pre {
     transition:none!important;
     scroll-behavior:auto!important;
   }
+}
+
+:root[lang="en"] .key-metric dt { min-height:2.8em; }
+:root[lang="en"] .verdicts { gap:5px; }
+:root[lang="en"] .tab-list button { white-space:normal; text-align:start; }
+@media(max-width:680px) {
+  .key-metric dd { font-size:16px; }
+}
+@media(max-width:360px) {
+  .app-header { padding-left:10px; padding-right:10px; }
+  .header-actions { gap:5px; }
+  .theme-select,.language-select { width:70px; }
+  .brand-mark { display:none; }
 }
