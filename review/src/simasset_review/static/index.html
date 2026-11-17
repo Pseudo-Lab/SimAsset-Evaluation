@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SimAsset · 결과 검토</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<header><a class="brand" href="/">S<span>SimAsset <b>Review</b></span></a><span class="local">로컬 검토본</span><button id="refresh">새로고침</button></header>
+<main>
+ <section class="intro"><div><p class="eyebrow">실행에서 판단까지</p><h1>같은 조건을 보고, 근거를 남깁니다.</h1><p>영상·측정값·검사 조건을 함께 확인하고 사람의 판정을 기록합니다.</p></div><div id="stats" aria-live="polite"></div></section>
+ <section class="workspace">
+  <aside><h2>검사 결과</h2><div class="filters"><label>에셋<select id="asset" aria-label="에셋"><option value="">전체 에셋</option></select></label><label>검사<select id="test" aria-label="검사"><option value="">전체 검사</option></select></label><label>에셋 버전<select id="version" aria-label="에셋 버전"><option value="">전체 버전</option></select></label><label>자료 구분<select id="origin" aria-label="자료 구분"><option value="">모든 자료</option><option value="team_shared">팀 공유 결과</option><option value="local_reproduction">로컬 재현 결과</option><option value="fixture">기능 시험 데이터</option></select></label></div><div id="run-list" aria-live="polite"></div></aside>
+  <section id="detail"><div class="empty"><h2>검사 결과를 선택해주세요.</h2><p>왼쪽에서 실행을 선택하면 영상과 판정이 연결됩니다.</p></div></section>
+ </section>
+ <details class="imports"><summary>가져오기 기록 <span id="import-count"></span></summary><div id="imports"></div></details>
+ <p id="notice" class="notice" role="status"></p>
+</main><script src="/static/app.js"></script></body></html>

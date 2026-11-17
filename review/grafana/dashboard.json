@@ -1,0 +1,160 @@
+{
+  "uid": "simasset-local-review",
+  "title": "SimAsset 결과 검토",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "timezone": "browser",
+  "tags": [
+    "local-prototype"
+  ],
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "출처와 실행 상태",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT origin, execution_status, source_status, count(DISTINCT run_id) AS runs FROM review.v_run_metrics GROUP BY origin,execution_status,source_status ORDER BY origin,source_status",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "title": "사람 판정",
+      "type": "table",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT outcome,reviewer,criterion_key,protocol_version,count(*) AS judgments FROM review.v_current_judgments GROUP BY outcome,reviewer,criterion_key,protocol_version ORDER BY outcome",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "에셋과 검사별 수집 범위",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT * FROM review.v_test_coverage ORDER BY asset,test_type,source_namespace",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "측정값과 SI 단위",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 16
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT run_id,asset,asset_version,test_type,seed,origin,metric_name,metric_value,metric_text,unit,valid,invalid_reason FROM review.v_run_metrics ORDER BY asset,run_id,metric_name LIMIT 1000",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": []
+  }
+}
