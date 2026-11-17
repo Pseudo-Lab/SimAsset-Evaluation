@@ -2,7 +2,7 @@
   "uid": "simasset-local-review",
   "title": "SimAsset · 검사 결과 현황",
   "schemaVersion": 39,
-  "version": 3,
+  "version": 4,
   "editable": false,
   "refresh": "30s",
   "timezone": "browser",
@@ -84,7 +84,7 @@
           "noValue": "—",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#79e0be"
+            "fixedColor": "green"
           }
         },
         "overrides": []
@@ -140,7 +140,7 @@
           "noValue": "—",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#c5d0db"
+            "fixedColor": "text"
           }
         },
         "overrides": []
@@ -197,7 +197,7 @@
           "noValue": "—",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#f4a398"
+            "fixedColor": "red"
           }
         },
         "overrides": []
@@ -253,7 +253,7 @@
           "noValue": "—",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#79e0be"
+            "fixedColor": "green"
           }
         },
         "overrides": []
@@ -313,7 +313,7 @@
           "min": 0,
           "color": {
             "mode": "fixed",
-            "fixedColor": "#79e0be"
+            "fixedColor": "green"
           }
         },
         "overrides": [
@@ -331,7 +331,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#79e0be"
+                  "fixedColor": "green"
                 }
               }
             ]
@@ -350,7 +350,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#f4a398"
+                  "fixedColor": "red"
                 }
               }
             ]
@@ -369,7 +369,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "#a2aeb9"
+                  "fixedColor": "text"
                 }
               }
             ]
@@ -459,15 +459,15 @@
                     "options": {
                       "pass": {
                         "text": "통과",
-                        "color": "#79e0be"
+                        "color": "green"
                       },
                       "fail": {
                         "text": "불통과",
-                        "color": "#f4a398"
+                        "color": "red"
                       },
                       "inconclusive": {
                         "text": "보류",
-                        "color": "#f2c078"
+                        "color": "orange"
                       }
                     }
                   }
@@ -670,15 +670,15 @@
                     "options": {
                       "completed": {
                         "text": "실행 완료",
-                        "color": "#c5d0db"
+                        "color": "text"
                       },
                       "error": {
                         "text": "실행 오류",
-                        "color": "#f4a398"
+                        "color": "red"
                       },
                       "skipped": {
                         "text": "대상 아님",
-                        "color": "#a2aeb9"
+                        "color": "text"
                       }
                     }
                   }
@@ -1223,6 +1223,14 @@
       "icon": "external link",
       "url": "http://127.0.0.1:8765",
       "targetBlank": true
+    },
+    {
+      "title": "테마 설정",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/profile",
+      "targetBlank": false,
+      "tooltip": "Preferences의 Interface theme에서 Light · Dark · System preference를 선택합니다."
     }
   ]
 }
