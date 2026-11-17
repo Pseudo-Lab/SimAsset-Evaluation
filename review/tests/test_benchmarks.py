@@ -16,6 +16,7 @@ def script(name):
 
 
 compare=script('compare_benchmarks');guard=script('azure_guard')
+benchmark=script('benchmark')
 
 
 def physics_folder(path,delta=0,asset='a'):
@@ -41,6 +42,32 @@ def test_incompatible_and_modified_trajectories_are_rejected(tmp_path):
     with pytest.raises(ValueError,match='asset'): compare.compare_physics(a,b)
     with (a/'states.npz').open('ab') as f: f.write(b'tampered')
     with pytest.raises(ValueError,match='changed'): compare.compare_physics(a,a)
+
+
+def test_baseline_initial_state_preserves_native_drift(tmp_path):
+    folder=physics_folder(tmp_path/'baseline');meta=json.loads((folder/'physics.json').read_text())
+    original=(folder/'states.npz').read_bytes()
+    with np.load(folder/'states.npz') as stored: native=stored['initial'].copy()
+    native[5]+=2e-11
+    initial,diagnostic=benchmark.checked_initial_state(folder,meta,native)
+    assert initial[5]==0 and native[5]==2e-11
+    assert diagnostic['native_state_max_abs_difference']==pytest.approx(2e-11,abs=1e-15)
+    assert diagnostic['native_initial']==native.tolist()
+    assert (folder/'states.npz').read_bytes()==original
+
+
+@pytest.mark.parametrize('problem',['asset','tampered','nonfinite'])
+def test_baseline_initial_state_rejects_incompatible_input(tmp_path,problem):
+    folder=physics_folder(tmp_path/'baseline');meta=json.loads((folder/'physics.json').read_text())
+    expected=json.loads(json.dumps(meta));native=np.zeros(14)
+    if problem=='asset': expected['asset_sha256']='another-asset'
+    elif problem=='tampered':
+        with (folder/'states.npz').open('ab') as f:f.write(b'tampered')
+    else:
+        np.savez(folder/'states.npz',initial=np.full(14,np.nan))
+        meta['states_sha256']=hashlib.sha256((folder/'states.npz').read_bytes()).hexdigest()
+        (folder/'physics.json').write_text(json.dumps(meta))
+    with pytest.raises(ValueError):benchmark.checked_initial_state(folder,expected,native)
 
 
 def test_render_compares_same_inputs_and_reports_pixel_difference(tmp_path):

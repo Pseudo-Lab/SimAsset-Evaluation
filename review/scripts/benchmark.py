@@ -37,6 +37,26 @@ def source_modules(root):
     return root,load_config,load_materials,build_model,run,ramp_hook,settle_flat,place_on_ramp,_perturb
 
 
+def checked_initial_state(folder, expected, native):
+    """Reuse a verified initial state without hiding native settling differences."""
+    import numpy as np
+    folder=Path(folder);meta=json.loads((folder/'physics.json').read_text())
+    for key in ('asset_sha256','source_files','seed','steps','config','state_enum','state_size','nq'):
+        if meta[key]!=expected[key]: raise ValueError(f'Initial-state conditions differ: {key}')
+    if meta['environment']['mujoco']!=expected['environment']['mujoco']:
+        raise ValueError('Initial-state MuJoCo versions differ')
+    if sha(folder/'states.npz')!=meta['states_sha256']:
+        raise ValueError('Initial-state file changed after measurement')
+    with np.load(folder/'states.npz',allow_pickle=False) as stored:
+        initial=stored['initial'].copy()
+    if initial.shape!=native.shape or not np.isfinite(initial).all():
+        raise ValueError('Initial state must be finite and match the current model size')
+    return initial,{'mode':'verified-baseline','baseline_states_sha256':meta['states_sha256'],
+                    'native_initial':native.tolist(),
+                    'native_state_max_abs_difference':float(np.max(np.abs(initial-native))),
+                    'note':'Native settling is preserved for diagnosis; the measured trajectory uses the baseline initial state.'}
+
+
 @contextmanager
 def profile_source(enabled):
     """Instrument external call boundaries only; never edit the shared source."""
@@ -126,6 +146,13 @@ def physics(args):
     spec=mujoco.mjtState.mjSTATE_FULLPHYSICS
     initial=np.empty(mujoco.mj_stateSize(model,spec));mujoco.mj_getState(model,data,initial,spec)
     duration=cfg['max_time_s'];steps=round(duration/model.opt.timestep)
+    source_hashes=source_manifest(root)
+    initial_source={'mode':'native-settling'}
+    if args.initial_from:
+        expected={'asset_sha256':sha(asset),'source_files':source_hashes,'seed':args.seed,
+                  'steps':steps,'config':cfg,'state_enum':int(spec),'state_size':len(initial),
+                  'nq':model.nq,'environment':env()}
+        initial,initial_source=checked_initial_state(args.initial_from,expected,initial)
     records=[]
     for repeat in range(args.repeats):
         mujoco.mj_setState(model,data,initial,spec);mujoco.mj_forward(model,data)
@@ -146,7 +173,7 @@ def physics(args):
     np.savez_compressed(out/'states.npz',states=np.array(states),frame_times=np.array(frame_times),initial=initial)
     mujoco.mj_saveModel(model,str(out/'model.mjb'))
     meta={'experiment':'E0/E1-fixed-duration-CPU','environment':env(),'asset':args.asset,
-          'asset_sha256':sha(asset),'source_files':source_manifest(root),
+          'asset_sha256':sha(asset),'source_files':source_hashes,'initial_state_source':initial_source,
           'scene_sha256':scene_hash,'seed':args.seed,'steps':steps,'nq':model.nq,'nv':model.nv,
           'simulated_duration_s':duration,'state_enum':int(spec),'state_size':len(initial),'config':cfg,
           'perturb':pert,'rest_settled':settled is not None,'records':records,
@@ -213,6 +240,7 @@ def main():
     s.add_argument('--video',action='store_true');s.set_defaults(fn=source_batch)
     p=subs.add_parser('physics');p.add_argument('--source',required=True,type=Path)
     p.add_argument('--asset',default='block_mu03');p.set_defaults(fn=physics)
+    p.add_argument('--initial-from',type=Path,help='Verified baseline initial state; native settling differences remain in metadata')
     r=subs.add_parser('render');r.add_argument('--states',required=True,type=Path)
     r.add_argument('--require-renderer');r.set_defaults(fn=render)
     for parser in (s,p,r):

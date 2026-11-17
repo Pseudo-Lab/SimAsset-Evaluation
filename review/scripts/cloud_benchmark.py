@@ -46,20 +46,22 @@ def main():
     ap.add_argument('--baseline',type=Path,help='Local baseline folders named <asset>-cpu')
     ap.add_argument('--max-minutes',type=int,default=30)
     args=ap.parse_args()
-    if platform.system()!='Linux': raise SystemExit('Azure/Linux 비교용입니다. Mac은 benchmark.py를 사용합니다.')
+    if platform.system()!='Linux': raise SystemExit('Linux GPU 비교용입니다. Mac은 benchmark.py를 사용합니다.')
     if not 1<=args.max_minutes<=180: ap.error('max-minutes: 1..180')
     args.source=args.source.resolve();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
     start=time.monotonic();deadline=start+args.max_minutes*60
     record={'started_at':datetime.now(timezone.utc).isoformat(),'assets':args.assets,'completed':[],
             'status':'running','repeats':3,'seed':0,'tolerances':{'position_m':1e-6,'quaternion_component':1e-6},
-            'notes':['Personal numerical tolerances, not team verdicts','E2 reuses E1 states; no mj_step']}
+            'notes':['Personal numerical tolerances, not team verdicts','E2 reuses E1 states; no mj_step',
+                     'With a baseline, E1 reuses its verified initial state and preserves native settling differences']}
     (out/'manifest.json').write_text(json.dumps(record,indent=2))
     with (out/'gpu-samples.csv').open('x') as gpu_log:
         monitor=start_gpu_monitor(out,record,gpu_log)
         try:
             for asset in args.assets:
                 states=out/(asset+'-cpu')
-                jobs=[('cpu','osmesa',['physics','--source',args.source,'--asset',asset,'--output',states]),
+                initial_args=['--initial-from',args.baseline.resolve()/(asset+'-cpu')] if args.baseline else []
+                jobs=[('cpu','osmesa',['physics','--source',args.source,'--asset',asset,'--output',states,*initial_args]),
                       ('sw','osmesa',['render','--states',states,'--require-renderer','llvmpipe','--output',out/(asset+'-sw')]),
                       ('gpu','egl',['render','--states',states,'--require-renderer','NVIDIA','--output',out/(asset+'-gpu')])]
                 for label,backend,cmd in jobs:
