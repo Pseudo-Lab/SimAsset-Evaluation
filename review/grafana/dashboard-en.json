@@ -2,12 +2,12 @@
   "uid": "simasset-local-review-en",
   "title": "SimAsset · Test results",
   "schemaVersion": 39,
-  "version": 5,
+  "version": 6,
   "editable": false,
   "refresh": "30s",
   "timezone": "browser",
   "tags": [
-    "local-prototype"
+    "simasset-evaluation"
   ],
   "time": {
     "from": "now-7d",
@@ -23,11 +23,11 @@
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 3
+        "h": 2
       },
       "options": {
         "mode": "markdown",
-        "content": "## SimAsset / Test results\nAll imported runs · Execution status and human assessments are separate. **Local review**"
+        "content": "## SimAsset / Test results"
       },
       "fieldConfig": {
         "defaults": {},
@@ -44,7 +44,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 3,
+        "y": 2,
         "w": 6,
         "h": 3
       },
@@ -100,7 +100,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 3,
+        "y": 2,
         "w": 6,
         "h": 3
       },
@@ -145,7 +145,7 @@
         },
         "overrides": []
       },
-      "description": "Distinct asset names. Versions with different content hashes share a name. This is not the completion rate for the 50 selected assets."
+      "description": "Number of distinct asset names."
     },
     {
       "id": 12,
@@ -157,7 +157,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 3,
+        "y": 2,
         "w": 6,
         "h": 3
       },
@@ -213,7 +213,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 3,
+        "y": 2,
         "w": 6,
         "h": 3
       },
@@ -258,7 +258,7 @@
         },
         "overrides": []
       },
-      "description": "Runs with at least one current human assessment. Multiple criteria or reviewers on the same run count as one reviewed run."
+      "description": "Runs with a current assessment, counted once per run."
     },
     {
       "id": 1,
@@ -266,7 +266,7 @@
       "type": "bargauge",
       "gridPos": {
         "x": 0,
-        "y": 6,
+        "y": 5,
         "w": 12,
         "h": 7
       },
@@ -376,7 +376,7 @@
           }
         ]
       },
-      "description": "A completed execution is not a human pass verdict. Source statuses retain the original harness values.",
+      "description": "Run counts by execution status.",
       "transformations": [
         {
           "id": "rowsToFields",
@@ -401,7 +401,7 @@
       "type": "table",
       "gridPos": {
         "x": 12,
-        "y": 6,
+        "y": 5,
         "w": 12,
         "h": 7
       },
@@ -588,7 +588,7 @@
           }
         ]
       },
-      "description": "Latest 50 current assessments, grouped by reviewer, criterion and rubric version. Test-fixture assessments are separate from team evaluations."
+      "description": "Latest 50 current assessments by reviewer and criterion."
     },
     {
       "id": 3,
@@ -596,7 +596,7 @@
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 12,
         "w": 24,
         "h": 9
       },
@@ -845,7 +845,7 @@
           }
         ]
       },
-      "description": "Grouped by asset name, content hash, test, source and status. Runs are not asset counts. Batch counts represent separate import namespaces."
+      "description": "Run counts by asset, version, test and source."
     },
     {
       "id": 40,
@@ -854,7 +854,7 @@
       "collapsed": true,
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 21,
         "w": 24,
         "h": 1
       },
@@ -865,7 +865,7 @@
           "type": "table",
           "gridPos": {
             "x": 0,
-            "y": 23,
+            "y": 22,
             "w": 24,
             "h": 12
           },
@@ -1196,7 +1196,7 @@
               }
             ]
           },
-          "description": "Read values with their units. Missing measurements stay empty with a reason; they are not zero. Scroll horizontally for source text, seed, run ID and asset hash. Open the review app for full source files and assessment history. Field names retain their original form; values and units use SI. Values display up to 8 decimal places without changing stored precision."
+          "description": "SI measurements by source field. Empty values are not measured."
         }
       ]
     }
@@ -1207,7 +1207,7 @@
   "templating": {
     "list": []
   },
-  "description": "Review imported runs, execution status, human assessments and measurements. This local dataset does not represent completion of the 50-asset evaluation. A completed execution is not a human pass verdict.",
+  "description": "Test runs and assessments in one place.",
   "timepicker": {
     "hidden": true,
     "refresh_intervals": [

@@ -170,7 +170,7 @@ async function showRun(id){
     const head=node('div',undefined,'detail-head'),identity=node('div',undefined,'identity'),title=node('div',undefined,'identity-title'),meta=node('div',undefined,'identity-meta');
     title.append(node('h2',d.asset),ui('span',testLabel(d.test_type),'type-tag'),badge(executionLabel[d.execution_status]||d.source_status,d.execution_status));
     [m(conditionLabel(d.config.condition)),`MuJoCo ${d.engine_version}`,`seed ${d.seed}`].forEach(t=>meta.append(node('span',t)));
-    identity.append(title,meta);head.append(identity,badge(originLabel[d.origin]||d.origin));root.append(head);
+    identity.append(title,meta);head.append(identity);root.append(head);
     if(d.execution_status==='error')root.append(ui('p',m('실행 오류 · {reason}',{reason:d.status_reason||d.source_status}),'warning'));
     if(d.execution_status==='skipped')root.append(ui('p','대상 아님으로 기록된 결과입니다. 누락이나 불통과로 집계하지 않습니다.','warning neutral'));
     const columns=node('div',undefined,'columns'),left=node('section',undefined,'evidence-column');left.append(mediaPanel(d));
@@ -223,7 +223,7 @@ function detailTabs(d){
 function judgmentForm(d){
   const draft=judgmentDrafts.get(d.run_id)||{},form=node('form',undefined,'verdict-card');
   const heading=node('div',undefined,'form-heading'),state=ui('span',dirtyRuns.has(d.run_id)?'미저장':'','draft-state'+(dirtyRuns.has(d.run_id)?' dirty':''));heading.append(ui('h3','판정 기록'),state);
-  form.append(heading,ui('p','자동 실행 상태와 별도로 남깁니다.','hint'));
+  form.append(heading);
   const reviewerLabel=ui('label','평가자'),reviewer=node('input');reviewer.name='reviewer';reviewer.required=true;multilingual(reviewer,100);reviewer.value=draft.reviewer??savedReviewer();attribute(reviewer,'placeholder',m('이름'));reviewerLabel.append(reviewer);
   const itemLabel=ui('label','검토 항목'),item=node('select');item.name='criterion_key';attribute(item,'aria-label',m('검토 항목'));
   [['physical_behavior','전체 물리 거동'],['penetration','관통'],['stability','안정성'],['motion','운동 모드'],['cavity','홈·구멍 보존']].forEach(([v,t])=>item.add(option(m(t),v)));if(draft.criterion_key&&![...item.options].some(o=>o.value===draft.criterion_key))item.add(option(draft.criterion_key,draft.criterion_key));item.value=draft.criterion_key||'physical_behavior';itemLabel.append(item);
