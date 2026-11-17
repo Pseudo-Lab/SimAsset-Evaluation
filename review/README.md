@@ -48,7 +48,7 @@ uv run python scripts/local_db.py stop
 
 ## Grafana 조회 구성
 
-판정 입력은 이 웹 화면에서 처리하고, Grafana에는 조회용 SQL 뷰만 허용합니다. 이미 설치된 Grafana가 있다면 다음과 같이 구성합니다.
+판정 입력은 이 웹 화면에서 처리하고, Grafana에는 조회용 SQL 뷰만 허용합니다. Grafana OSS 13.3.1의 macOS ARM64 공식 배포본으로 네 패널의 실제 로딩과 조회 값을 확인했습니다. 다른 환경에서 처음 구성할 때는 [공식 설치 안내](https://grafana.com/docs/grafana/latest/setup-grafana/installation/mac/)에 따라 Grafana를 설치한 뒤 다음 명령을 실행합니다.
 
 ```bash
 uv run python scripts/grafana_readonly.py
@@ -58,7 +58,18 @@ grafana server --homepath /absolute/path/to/grafana \
 
 첫 실행용 로그인은 로컬 `.state/grafana/local-login.json`에 있습니다. 서버 주소는 `127.0.0.1:3015`입니다. 구성 스크립트는 DB 비밀번호를 회전하므로 실행 중인 Grafana가 있다면 유지 관리 시점에 실행합니다. 기존 Grafana 관리자 비밀번호를 초기화하는 도구는 아닙니다.
 
-실제 PostgreSQL에서 뷰 SELECT와 쓰기 권한 부재를 검증했습니다. 이 Mac에는 Grafana가 설치되어 있지 않아 Grafana 화면의 로딩은 아직 확인하지 않았습니다. [공식 PostgreSQL 데이터소스 안내](https://grafana.com/docs/grafana/latest/datasources/postgres/configure/)도 별도 읽기 전용 계정을 권장합니다.
+이 Mac의 설치본은 `.state/grafana/runtime/grafana-13.3.1/`에 있습니다. 이미 구성된 환경을 다시 켤 때는 DB를 먼저 시작하고 아래 서버 명령만 실행합니다. 구성 스크립트를 다시 실행할 필요는 없습니다.
+
+```bash
+uv run python scripts/local_db.py start
+.state/grafana/runtime/grafana-13.3.1/bin/grafana server \
+  --homepath "$PWD/.state/grafana/runtime/grafana-13.3.1" \
+  --config "$PWD/.state/grafana/grafana.ini"
+```
+
+[Grafana 결과 검토](http://127.0.0.1:3015/d/simasset-local-review)는 전체 수집분을 표시합니다. 기간 선택기는 숨겼고 30초 자동 갱신을 사용합니다. 측정값은 최대 1,000행을 조회하며, 에셋·측정 항목·유효 여부로 표를 필터링할 수 있습니다. 표의 숫자와 단위는 SI 기준이며 원본 항목명은 유지합니다. 실행 ID와 에셋 해시는 가로 스크롤로 확인합니다.
+
+Grafana의 DB 계정은 뷰 SELECT만 허용하며 테이블 INSERT/UPDATE 권한이 없습니다. 공식 배포본의 SHA-256을 검증했고, 추가 플러그인 자동 설치는 껐습니다. [공식 PostgreSQL 데이터소스 안내](https://grafana.com/docs/grafana/latest/datasources/postgres/configure/)도 별도 읽기 전용 계정을 권장합니다.
 
 ## 검증과 다음 연결
 

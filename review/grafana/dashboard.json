@@ -1,9 +1,9 @@
 {
   "uid": "simasset-local-review",
-  "title": "SimAsset 결과 검토",
+  "title": "SimAsset 결과 검토 · 로컬 재현",
   "schemaVersion": 39,
-  "version": 1,
-  "editable": true,
+  "version": 2,
+  "editable": false,
   "refresh": "30s",
   "timezone": "browser",
   "tags": [
@@ -16,13 +16,13 @@
   "panels": [
     {
       "id": 1,
-      "title": "출처와 실행 상태",
+      "title": "실행 상태 · 전체 수집분",
       "type": "table",
       "gridPos": {
         "x": 0,
         "y": 0,
         "w": 12,
-        "h": 8
+        "h": 5
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -35,28 +35,142 @@
             "type": "grafana-postgresql-datasource",
             "uid": "simasset-local-postgres"
           },
-          "rawSql": "SELECT origin, execution_status, source_status, count(DISTINCT run_id) AS runs FROM review.v_run_metrics GROUP BY origin,execution_status,source_status ORDER BY origin,source_status",
+          "rawSql": "SELECT sum(run_count)::bigint AS runs, execution_status, source_status, origin FROM review.v_test_coverage GROUP BY origin,execution_status,source_status ORDER BY execution_status,origin,source_status",
           "format": "table",
           "rawQuery": true
         }
       ],
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": false
       },
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      }
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "runs"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 수"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "execution_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 상태"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "completed": {
+                        "text": "완료"
+                      },
+                      "error": {
+                        "text": "실행 오류"
+                      },
+                      "skipped": {
+                        "text": "건너뜀"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "source_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "원본 상태"
+              },
+              {
+                "id": "custom.width",
+                "value": 135
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "origin"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "자료 출처"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "local_reproduction": {
+                        "text": "직접 재현"
+                      },
+                      "team_shared": {
+                        "text": "팀 공유 원본"
+                      },
+                      "fixture": {
+                        "text": "기능 시험"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "description": "실행 완료는 사람의 통과 판정이 아닙니다. 원본 상태는 하네스가 기록한 값을 그대로 표시합니다."
     },
     {
       "id": 2,
-      "title": "사람 판정",
+      "title": "사람 판정 · 최신 기록",
       "type": "table",
       "gridPos": {
         "x": 12,
         "y": 0,
         "w": 12,
-        "h": 8
+        "h": 5
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -69,28 +183,152 @@
             "type": "grafana-postgresql-datasource",
             "uid": "simasset-local-postgres"
           },
-          "rawSql": "SELECT outcome,reviewer,criterion_key,protocol_version,count(*) AS judgments FROM review.v_current_judgments GROUP BY outcome,reviewer,criterion_key,protocol_version ORDER BY outcome",
+          "rawSql": "SELECT count(*) AS judgments, outcome,reviewer,criterion_key,protocol_version FROM review.v_current_judgments GROUP BY outcome,reviewer,criterion_key,protocol_version ORDER BY outcome,reviewer,criterion_key,protocol_version",
           "format": "table",
           "rawQuery": true
         }
       ],
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": false
       },
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      }
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "judgments"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "판정 수"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outcome"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "판정"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "pass": {
+                        "text": "통과"
+                      },
+                      "fail": {
+                        "text": "불통과"
+                      },
+                      "inconclusive": {
+                        "text": "보류"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "reviewer"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "평가자"
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "criterion_key"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "검토 항목"
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "physical_behavior": {
+                        "text": "물리 동작"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "protocol_version"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "기준 버전"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "description": "수정 이력 중 현재 유효한 판정만 집계합니다. 로컬 UI 검증 평가자의 기록은 기능 시험이며 팀 평가가 아닙니다."
     },
     {
       "id": 3,
-      "title": "에셋과 검사별 수집 범위",
+      "title": "에셋별 실행 범위",
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 5,
         "w": 24,
-        "h": 10
+        "h": 7
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -103,28 +341,206 @@
             "type": "grafana-postgresql-datasource",
             "uid": "simasset-local-postgres"
           },
-          "rawSql": "SELECT * FROM review.v_test_coverage ORDER BY asset,test_type,source_namespace",
+          "rawSql": "SELECT asset, sum(run_count)::bigint AS runs, count(DISTINCT source_namespace) AS batches, execution_status,source_status,test_type,origin,asset_version FROM review.v_test_coverage GROUP BY asset,asset_version,test_type,origin,execution_status,source_status ORDER BY asset,test_type,asset_version,origin,execution_status,source_status",
           "format": "table",
           "rawQuery": true
         }
       ],
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": false
       },
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      }
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "runs"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 수"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "execution_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 상태"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "completed": {
+                        "text": "완료"
+                      },
+                      "error": {
+                        "text": "실행 오류"
+                      },
+                      "skipped": {
+                        "text": "건너뜀"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "source_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "원본 상태"
+              },
+              {
+                "id": "custom.width",
+                "value": 135
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "origin"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "자료 출처"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "local_reproduction": {
+                        "text": "직접 재현"
+                      },
+                      "team_shared": {
+                        "text": "팀 공유 원본"
+                      },
+                      "fixture": {
+                        "text": "기능 시험"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "에셋"
+              },
+              {
+                "id": "custom.width",
+                "value": 125
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "batches"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 묶음 수"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "test_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "검사"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset_version"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "에셋 해시"
+              },
+              {
+                "id": "custom.width",
+                "value": 480
+              }
+            ]
+          }
+        ]
+      },
+      "description": "같은 에셋 이름·내용 해시·검사·출처·상태를 묶습니다. 실행 수는 에셋 개수가 아니며, 별도 namespace로 수집한 실행 묶음 수를 함께 표시합니다."
     },
     {
       "id": 4,
-      "title": "측정값과 SI 단위",
+      "title": "측정값과 SI 단위 · 최대 1,000행",
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 12,
         "w": 24,
-        "h": 16
+        "h": 13
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -137,18 +553,273 @@
             "type": "grafana-postgresql-datasource",
             "uid": "simasset-local-postgres"
           },
-          "rawSql": "SELECT run_id,asset,asset_version,test_type,seed,origin,metric_name,metric_value,metric_text,unit,valid,invalid_reason FROM review.v_run_metrics ORDER BY asset,run_id,metric_name LIMIT 1000",
+          "rawSql": "SELECT asset,metric_name,metric_value,unit,valid,invalid_reason,metric_text,seed,run_id,asset_version,test_type,origin FROM review.v_run_metrics ORDER BY asset,run_id,metric_name LIMIT 1000",
           "format": "table",
           "rawQuery": true
         }
       ],
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": true
       },
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      }
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "origin"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "자료 출처"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "local_reproduction": {
+                        "text": "직접 재현"
+                      },
+                      "team_shared": {
+                        "text": "팀 공유 원본"
+                      },
+                      "fixture": {
+                        "text": "기능 시험"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "에셋"
+              },
+              {
+                "id": "custom.width",
+                "value": 125
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "test_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "검사"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset_version"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "에셋 해시"
+              },
+              {
+                "id": "custom.width",
+                "value": 480
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "측정 항목"
+              },
+              {
+                "id": "custom.width",
+                "value": 185
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "수치(SI)"
+              },
+              {
+                "id": "custom.width",
+                "value": 145
+              },
+              {
+                "id": "decimals",
+                "value": 8
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric_text"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "문자값"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "unit"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "단위(SI)"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "valid"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "유효 여부"
+              },
+              {
+                "id": "custom.width",
+                "value": 105
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "true": {
+                        "text": "유효"
+                      },
+                      "false": {
+                        "text": "미측정 / 무효"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "invalid_reason"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "미측정 사유"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "seed"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "시드"
+              },
+              {
+                "id": "custom.width",
+                "value": 55
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 ID"
+              },
+              {
+                "id": "custom.width",
+                "value": 300
+              }
+            ]
+          }
+        ]
+      },
+      "description": "수치와 단위를 함께 읽습니다. 미측정은 빈 값과 사유로 보존하며 0으로 바꾸지 않습니다. 가로 스크롤로 원문 문자값·시드·실행 ID·에셋 해시를 확인할 수 있습니다. 전체 원본과 판정 이력은 상단 검토 화면 링크에서 확인합니다. 항목명은 원본을 유지하고 값과 단위는 SI로 환산합니다. 화면 수치는 소수점 8자리로 표시하며, 저장된 정밀도는 그대로 유지합니다."
     }
   ],
   "annotations": {
@@ -156,5 +827,23 @@
   },
   "templating": {
     "list": []
-  }
+  },
+  "description": "로컬에서 재현한 검사 결과를 조회합니다. 자동 실행 상태와 사람 판정을 구분하며, 팀의 실제 50개 에셋 평가 결과는 아닙니다. 기간 필터 없이 전체 수집분을 표시합니다.",
+  "timepicker": {
+    "hidden": true,
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "links": [
+    {
+      "title": "영상 · 시계열 · 판정 열기",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:8765",
+      "targetBlank": true
+    }
+  ]
 }

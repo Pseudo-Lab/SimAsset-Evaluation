@@ -30,8 +30,9 @@ def main():
         count=reader.execute('SELECT count(*) FROM review.v_run_metrics').fetchone()[0]
         grants=reader.execute("SELECT has_table_privilege(current_user,'review.test_runs','INSERT'), has_table_privilege(current_user,'review.run_judgments','UPDATE')").fetchone()
         assert grants==(False,False)
-    root=s.state/'grafana';(root/'provisioning/datasources').mkdir(parents=True,exist_ok=True)
-    (root/'provisioning/dashboards').mkdir(parents=True,exist_ok=True)
+    root=s.state/'grafana'
+    for directory in ('datasources','dashboards','plugins','alerting'):
+        (root/'provisioning'/directory).mkdir(parents=True,exist_ok=True)
     # JSON is valid YAML and avoids incorrectly escaping generated credentials.
     config={'apiVersion':1,'datasources':[{'name':'SimAsset local','uid':'simasset-local-postgres',
       'type':'grafana-postgresql-datasource','access':'proxy','url':f"{info['host']}:{info.get('port','5432')}",
@@ -59,6 +60,10 @@ enabled = false
 [analytics]
 reporting_enabled = false
 check_for_updates = false
+check_for_plugin_updates = false
+[plugins]
+preinstall_disabled = true
+preinstall_auto_update = false
 ''');os.chmod(ini,0o600)
     credentials=root/'local-login.json';credentials.write_text(json.dumps({'user':'local-review','password':admin}));os.chmod(credentials,0o600)
     print(json.dumps({'views_readable':True,'metric_rows':count,'table_write_privileges':False,
