@@ -77,15 +77,19 @@ def create_app(settings: Settings | None = None):
                             content_disposition_type='inline' if inline else 'attachment')
 
     @app.get('/api/runs/{run_id}/series')
-    def series(run_id:UUID):
+    def series(run_id:UUID, channel:Literal['asset','probe']='asset'):
+        filename = 'timeseries_probe.csv' if channel=='probe' else 'timeseries.csv'
+        units = ({'t':'s','depth_mm':'mm','ball_z_mm':'mm','inside_opening':'bool'}
+                 if channel=='probe' else {'t':'s','z':'mm','max_pen':'mm'})
         with settings.connect() as conn:
-            row=conn.execute("SELECT artifact_id FROM run_artifacts WHERE run_id=%s AND filename='timeseries.csv'",(run_id,)).fetchone()
-        if not row: return {'points':[],'units':{'t':'s','z':'mm','max_pen':'mm'}}
+            row=conn.execute('SELECT artifact_id FROM run_artifacts WHERE run_id=%s AND filename=%s',
+                             (run_id,filename)).fetchone()
+        if not row: return {'points':[],'units':units}
         _,path=artifact(row['artifact_id'])
         with path.open(encoding='utf-8-sig',newline='') as f:
-            rows=[{'t':float(x['t']),'z':float(x['z']),'max_pen':float(x['max_pen'])} for x in csv.DictReader(f)]
+            rows=[{key:float(x[key]) if x[key].strip() else None for key in units} for x in csv.DictReader(f)]
         # Return all validated samples: decimation must not hide brief penetration peaks.
-        return {'points':rows,'units':{'t':'s','z':'mm','max_pen':'mm'}}
+        return {'points':rows,'units':units}
 
     @app.post('/api/runs/{run_id}/judgments',status_code=201)
     def judge(run_id:UUID,data:Judgment):

@@ -2,7 +2,7 @@
 
 검사 결과 폴더를 검증해 로컬 PostgreSQL에 가져오고, 영상·시계열·측정값을 보면서 사람 판정을 남깁니다. 같은 결과를 다시 가져오면 중복으로 기록하고, 같은 실행 ID의 내용이 다르면 기존 결과를 보존한 채 충돌을 표시합니다.
 
-현재 어댑터는 팀에서 공유한 `incline_env.zip`의 빗면 검사 출력에 맞췄습니다. 팀의 최종 스키마나 판정 규약은 아닙니다. 다른 검사 출력은 해당 검사에 맞는 검증기를 추가해야 합니다.
+현재 어댑터는 팀에서 공유한 `incline_env.zip`의 빗면 검사와 `probe_env.zip`의 홈 검사 출력에 맞췄습니다. 팀의 최종 스키마나 판정 규약은 아닙니다. 나머지 검사 출력은 해당 검사에 맞는 검증기를 추가해야 합니다.
 
 ## 실행
 
@@ -24,12 +24,20 @@ uv run simasset-review serve
 uv run simasset-review import /absolute/path/to/result \
   --namespace shared-incline-20261117 --origin team_shared
 
-# 여러 하위 폴더의 summary.csv를 찾아 각각 검증합니다.
+# 먼저 예상 실행 목록과 폴더·근거 파일을 대조합니다. DB는 필요하지 않습니다.
+uv run simasset-review audit /absolute/path/to/result-batch \
+  --expected /absolute/path/to/expected.json
+
+# summary.csv뿐 아니라 meta.json·시계열만 남은 불완전한 폴더도 검사합니다.
 uv run simasset-review import /absolute/path/to/result-batch \
   --recursive --namespace shared-incline-20261117 --origin team_shared
 ```
 
 출력의 `imported`, `duplicate`, `conflict`, `invalid`를 확인합니다. 일부가 실패하면 정상 항목은 유지하고 CLI는 종료 코드 2를 반환합니다. 오류를 고친 파일은 다시 가져올 수 있으며, 이전 시도 기록은 남습니다. 내용이 달라진 동일 ID를 강제로 덮어쓰는 옵션은 없습니다.
+
+`audit`의 `valid`는 파일 형식이 유효하다는 뜻입니다. 에셋 품질 통과와 다릅니다. 예상 목록을 생략하면 존재하는 폴더만 검사하므로, 전체 에셋·검사 조합이 모두 제출됐다고 판정하지 않습니다. 예상 목록 형식은 [결과 제출 초안](docs/결과제출_계약초안.md)에 있습니다.
+
+홈 검사에서는 공의 진입 깊이를 별도 그래프로 표시합니다. 공을 놓기 전의 빈 값은 측정값 0으로 바꾸지 않습니다. 원본의 `not_applicable`은 검사 대상 아님으로 보관하며, 이 경로에서 기록되지 않은 에셋 해시도 그대로 미기록으로 표시합니다. `probe_pass`는 코드의 측정 결과로만 저장합니다.
 
 화면에서 실행을 선택하고 영상·그래프·원본 단위를 확인한 뒤 평가자, 검토 항목, 기준 버전, 이유를 입력합니다. 판정을 수정하면 새 기록이 이전 기록을 참조합니다. `ok` 같은 자동 상태가 사람의 통과 판정으로 바뀌지는 않습니다.
 
@@ -84,5 +92,7 @@ uv run pytest -q
 - [CPU·GPU 비교 실행 안내](docs/환경비교_실행안내.md)
 - [Nebius L40S 실측 결과](docs/Nebius_GPU_검증.md)
 - [팀 공유 메시지 초안](docs/팀공유_초안.md)
+- [결과 제출·ID·수정 규칙 초안](docs/결과제출_계약초안.md)
+- [팀원 재현 점검과 짧은 시연](docs/팀원_재현점검.md)
 
 공유된 원본 하네스·에셋과 개별 실행 원문은 이 저장소에 포함하지 않습니다. 검증 수치와 비교 그림은 문서에 포함하며, 제공받은 원본을 따로 지정해 재현합니다.

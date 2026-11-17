@@ -11,7 +11,7 @@ from psycopg.conninfo import conninfo_to_dict
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from .bundle import PROFILE, METRICS, STATUSES, InvalidBundle, digest, uid, snapshot, parse, media_type
+from .bundle import STATUSES, InvalidBundle, digest, uid, snapshot, parse, media_type
 
 
 @dataclass
@@ -75,17 +75,18 @@ def import_bundle(settings: Settings, source: Path, namespace: str, origin: str)
             attempt(conn, source, namespace, sha, old['run_id'], status, details)
             return {'status':status, 'run_id':str(old['run_id']), **details}
         asset = uid('asset', namespace, b.asset_id)
-        variant = uid('variant', asset, b.asset_hash)
-        protocol = uid('protocol', b.test, PROFILE)
+        variant = uid('variant', asset, b.asset_hash or 'unrecorded-bundle:'+sha)
+        protocol = uid('protocol', b.test, b.profile)
         config_hash = digest(b.config)
         case = uid('case', variant, protocol, config_hash)
         conn.execute('INSERT INTO assets VALUES(%s,%s,%s,%s) ON CONFLICT DO NOTHING',
                      (asset, namespace, b.asset_id, b.asset_id))
         conn.execute('INSERT INTO asset_variants VALUES(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
                      (variant, asset, b.asset_hash, Jsonb({}), Jsonb({'type':'unknown',
+                      'hash_recorded': b.asset_hash is not None,
                       'note':'원본 에셋 해시는 출력 파일의 선언값입니다. 실제 적용 물성은 실행 config/raw_meta에 보존합니다.'})))
         conn.execute('INSERT INTO test_protocols VALUES(%s,%s,%s,%s) ON CONFLICT DO NOTHING',
-                     (protocol, b.test, PROFILE, Jsonb(METRICS)))
+                     (protocol, b.test, b.profile, Jsonb(b.metric_rules)))
         conn.execute('INSERT INTO test_cases VALUES(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
                      (case, variant, protocol, config_hash, Jsonb(b.config)))
         conn.execute('''INSERT INTO test_runs(run_id,case_id,source_namespace,source_run_id,
@@ -96,9 +97,9 @@ def import_bundle(settings: Settings, source: Path, namespace: str, origin: str)
            b.meta.get('git_commit') or None,STATUSES[b.status],b.status,b.meta.get('error'),
            Jsonb(b.meta),Jsonb(manifest),Jsonb(b.warnings)))
         for m in b.metrics:
-            mid = uid('metric',protocol,m['name'],PROFILE)
+            mid = uid('metric',protocol,m['name'],b.profile)
             conn.execute('INSERT INTO metric_definitions VALUES(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
-                         (mid,protocol,m['name'],m['unit'],PROFILE))
+                         (mid,protocol,m['name'],m['unit'],b.profile))
             conn.execute('INSERT INTO run_metrics VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
                          (run,mid,m['value'],m['text'],m['valid'],m['reason'],m['raw_value'],m['raw_unit']))
         for f in manifest:
@@ -114,15 +115,16 @@ def list_runs(settings, asset='', test='', version='', origin='', offset=0):
     with settings.connect() as conn:
         return conn.execute('''SELECT r.run_id,r.source_run_id,r.origin,r.seed,r.source_status,
          r.execution_status,r.engine_version,r.imported_at,av.content_hash AS asset_version,
-         a.display_name AS asset,p.test_type,p.protocol_version,
+         a.display_name AS asset,p.test_type,p.protocol_version,c.config->>'condition' AS condition,
          (SELECT count(*) FROM v_current_judgments j WHERE j.run_id=r.run_id) AS judgments,
          (SELECT count(*) FROM run_artifacts ar WHERE ar.run_id=r.run_id AND ar.artifact_type='video') AS videos
          FROM test_runs r JOIN test_cases c USING(case_id) JOIN asset_variants av USING(variant_id)
          JOIN assets a USING(asset_id) JOIN test_protocols p USING(protocol_id)
          WHERE (%s='' OR a.display_name=%s) AND (%s='' OR p.test_type=%s)
-          AND (%s='' OR av.content_hash=%s) AND (%s='' OR r.origin=%s)
+          AND (%s='' OR av.content_hash=%s OR (%s='__missing__' AND av.content_hash IS NULL))
+          AND (%s='' OR r.origin=%s)
          ORDER BY a.display_name,r.seed,r.imported_at,r.run_id LIMIT 1000 OFFSET %s''',
-         (asset,asset,test,test,version,version,origin,origin,offset)).fetchall()
+         (asset,asset,test,test,version,version,version,origin,origin,offset)).fetchall()
 
 
 def get_run(settings, run_id):

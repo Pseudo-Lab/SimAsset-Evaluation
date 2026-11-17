@@ -7,9 +7,12 @@ CREATE TABLE IF NOT EXISTS assets (
 );
 CREATE TABLE IF NOT EXISTS asset_variants (
  variant_id uuid PRIMARY KEY, asset_id uuid NOT NULL REFERENCES assets,
- content_hash text NOT NULL, physics_json jsonb NOT NULL DEFAULT '{}',
+ content_hash text, physics_json jsonb NOT NULL DEFAULT '{}',
  provenance_json jsonb NOT NULL DEFAULT '{}', UNIQUE(asset_id, content_hash)
 );
+-- Probe skipped/error outputs may not contain a hash. Keep NULL, never a fake hash.
+-- Existing immutable rows and their IDs are preserved by this additive migration.
+ALTER TABLE asset_variants ALTER COLUMN content_hash DROP NOT NULL;
 CREATE TABLE IF NOT EXISTS test_protocols (
  protocol_id uuid PRIMARY KEY, test_type text NOT NULL, protocol_version text NOT NULL,
  metric_rules jsonb NOT NULL, UNIQUE(test_type, protocol_version)

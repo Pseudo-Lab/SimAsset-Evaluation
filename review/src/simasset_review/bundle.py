@@ -1,4 +1,4 @@
-"""Read original incline-env v3 outputs without altering units, IDs or source files."""
+"""Read versioned shared outputs without altering units, IDs or source files."""
 from __future__ import annotations
 
 import csv
@@ -16,6 +16,7 @@ from uuid import UUID, uuid5
 
 NAMESPACE = UUID('10b114b1-2aa4-4bcf-bd6e-424c54878f69')
 PROFILE = 'incline-env-v3-adapter-1'
+PROBE_PROFILE = 'probe-env-v3-adapter-1'
 STATUSES = {'ok': 'completed', 'unsettled': 'completed', 'diverged': 'completed',
             'missing_inertial': 'error', 'missing_inertia': 'error', 'error': 'error',
             'not_applicable': 'skipped'}
@@ -41,6 +42,20 @@ METRICS = {
  'peak_pen_pct_diag': '%', 'rest_pen_pct_diag': '%', 'note': '', 'none': '',
 }
 TEXT_METRICS = {'mode_pred', 'motion_mode', 'floor_motion_mode', 'note'}
+PROBE_METRICS = {
+ 'bbox_diag_mm': 'mm', 'mass_kg': 'kg', 'ball_radius': 'mm',
+ 'asset_presettle_time_s': 's', 'probe_pass': 'bool', 'probe_depth': 'mm',
+ 'probe_depth_ratio': '%', 'probe_floor_gap': 'mm', 'probe_max_depth': 'mm',
+ 'probe_center_offset': 'mm', 'ball_settle_time': 's', 'asset_moved': 'mm',
+ 'asset_tilt_end': 'deg', 'peak_pen': 'mm', 'note': '', 'none': '',
+ **{name + '_pct_diag': '%' for name in (
+     'probe_depth', 'probe_floor_gap', 'probe_max_depth', 'probe_center_offset',
+     'asset_moved', 'peak_pen')},
+}
+PROBE_FIELDS = ['t', 'ball_x_mm', 'ball_y_mm', 'ball_z_mm', 'ball_local_x_mm',
+                'ball_local_y_mm', 'ball_local_z_mm', 'depth_mm', 'inside_opening',
+                'ball_speed_mm_s']
+PROFILES = {'incline': (PROFILE, METRICS), 'probe': (PROBE_PROFILE, PROBE_METRICS)}
 UNITS = {'mm': ('m', .001), 'mm/s': ('m/s', .001), 'deg': ('rad', math.pi/180),
          '%': ('1', .01), 'bool': ('bool', 1), '': ('1', 1),
          's': ('s', 1), 'kg': ('kg', 1), 'm/s2': ('m/s2', 1)}
@@ -181,7 +196,7 @@ class Bundle:
     manifest: list
     source_id: str
     asset_id: str
-    asset_hash: str
+    asset_hash: str | None
     seed: int
     test: str
     status: str
@@ -189,6 +204,32 @@ class Bundle:
     config: dict
     metrics: list
     warnings: list
+    condition: str
+    profile: str
+    metric_rules: dict
+
+
+def validate_probe_series(path: Path, common_rows: list):
+    """Pre-release blanks are unavailable observations, never zero depth."""
+    if not path.is_file():
+        fail('missing_file', '홈 검사에 timeseries_probe.csv가 없습니다.')
+    rows = csv_rows(path, PROBE_FIELDS)
+    if len(rows) != len(common_rows):
+        fail('probe_alignment', '공과 에셋 시계열의 관측 개수가 다릅니다.')
+    released = False
+    for i, (row, common) in enumerate(zip(rows, common_rows)):
+        if finite(row['t'], f'probe.t[{i}]') != finite(common['t'], f'timeseries.t[{i}]'):
+            fail('probe_alignment', '공과 에셋 시계열의 시각이 다릅니다.')
+        blanks = [row[k].strip() == '' for k in PROBE_FIELDS[1:]]
+        if all(blanks) and not released:
+            continue
+        if any(blanks):
+            fail('probe_observation', '공을 놓기 전의 연속된 빈 구간 이외에는 관측값이 필요합니다.')
+        released = True
+        values = {k: finite(row[k], f'probe.{k}[{i}]') for k in PROBE_FIELDS[1:]}
+        if values['inside_opening'] not in (0, 1) or values['ball_speed_mm_s'] < 0:
+            fail('probe_observation', '입구 포함 여부는 0/1, 공 속력은 0 이상이어야 합니다.')
+    return released
 
 
 def parse(path: Path, sha256: str, manifest: list) -> Bundle:
@@ -200,8 +241,9 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
     base = rows[0]
     if any(any(r[k] != base[k] for k in FIELDS[:8]) for r in rows):
         fail('mixed_run', '하나의 summary.csv에 다른 실행·에셋·조건·상태가 섞였습니다.')
-    if base['test'] != 'incline':
-        fail('unsupported_profile', f"{base['test']}: 검사별 지표 명세가 필요한 출력입니다. 현재 검증 프로필은 incline입니다.")
+    if base['test'] not in PROFILES:
+        fail('unsupported_profile', f"{base['test']}: 검사별 지표 명세가 필요한 출력입니다. 현재 검증 프로필은 incline, probe입니다.")
+    profile, metric_rules = PROFILES[base['test']]
     if not base['asset_id'] or base['status'] not in STATUSES:
         fail('identity_or_status', '에셋 ID가 비었거나 알 수 없는 실행 상태입니다.')
     seed = integer(base['seed'], 'summary.seed')
@@ -214,9 +256,14 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
     if dt <= 0 or not isinstance(meta.get('mujoco'), str) or not meta['mujoco']:
         fail('missing_environment', '양수 timestep과 MuJoCo 버전이 필요합니다.')
     ah = base['asset_sha256']
-    if not re.fullmatch('[0-9a-fA-F]{64}', ah):
+    # The shared probe writer exits before hashing when there is no cavity or
+    # the source cannot be loaded. Preserve that fact; do not invent an asset hash.
+    missing_hash_allowed = base['test'] == 'probe' and STATUSES[base['status']] in ('skipped', 'error')
+    if not re.fullmatch('[0-9a-fA-F]{64}', ah) and not (missing_hash_allowed and ah == ''):
         fail('asset_hash', '에셋 SHA-256이 없거나 잘못되었습니다.')
     warnings = []
+    if not ah:
+        warnings.append('원본 에셋 해시가 미기록되어 있습니다. 이 결과는 동일 에셋 버전으로 합치지 않습니다.')
     if not base['run_id']:
         warnings.append('원본 실행 ID가 없어 가져오기 ID를 부여했습니다. 같은 실행의 수정본 여부는 별도 확인해야 합니다.')
     if not meta.get('git_commit'):
@@ -228,7 +275,7 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
         if name in seen:
             fail('duplicate_metric', f'{name}: 같은 실행에서 같은 지표가 두 번 나옵니다.')
         seen.add(name)
-        if name not in METRICS or METRICS[name] != unit:
+        if name not in metric_rules or metric_rules[name] != unit:
             fail('metric_or_unit', f'{name}: 단위 {unit!r}를 승인된 지표 명세와 대조해주세요.')
         si_unit, factor = UNITS[unit]
         value, text, valid, reason = None, None, True, None
@@ -247,7 +294,7 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
             fail('missing_file', '시뮬레이션 결과에 timeseries.csv가 없습니다.')
         ts = csv_rows(path/'timeseries.csv', TS_FIELDS)
         if meta.get('timeseries_units') != TS_UNITS:
-            fail('timeseries_units', '시계열의 단위 또는 좌표계가 incline v3와 다릅니다.')
+            fail('timeseries_units', '시계열의 단위 또는 좌표계가 현재 출력 프로필과 다릅니다.')
         prev = -math.inf
         for i, row in enumerate(ts):
             values = [finite(row[k], f'timeseries.{k}[{i}]') for k in TS_FIELDS]
@@ -256,6 +303,12 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
             prev = values[0]
         if not any(x['path'].endswith('.mp4') for x in manifest):
             warnings.append('영상이 없는 수치 결과입니다. 화면 관찰이 필요한 판정에는 추가 근거가 필요합니다.')
+        if base['test'] == 'probe':
+            released = validate_probe_series(path/'timeseries_probe.csv', ts)
+            if not released:
+                warnings.append('공을 놓은 이후의 관측값이 없습니다. 홈 통과 여부를 확인할 수 없습니다.')
+    elif base['test'] == 'probe' and any((path/name).exists() for name in ('timeseries.csv', 'timeseries_probe.csv')):
+        fail('unexpected_trajectory', '실행 전 중단된 홈 검사에 시계열이 있습니다. 이전 실행 파일이 섞였는지 확인해주세요.')
     asset = meta.get('asset', {})
     if not isinstance(asset, dict):
         fail('invalid_metadata', 'asset은 객체여야 합니다.')
@@ -266,8 +319,8 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
     config = {k: v for k, v in meta.items() if k not in excluded}
     config['asset'] = {k:v for k,v in asset.items() if k != 'path'}
     return Bundle(path, sha256, manifest, base['run_id'] or 'import:'+sha256,
-                  base['asset_id'], ah.lower(), seed, base['test'], base['status'],
-                  meta, config, metrics, warnings)
+                  base['asset_id'], ah.lower() or None, seed, base['test'], base['status'],
+                  meta, config, metrics, warnings, base['condition'], profile, metric_rules)
 
 
 def media_type(name):

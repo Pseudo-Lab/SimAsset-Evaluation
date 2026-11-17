@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-11-17T19:08:35.982Z",
+  "scope": "local reproduction of shared probe samples; not team 50 asset results",
+  "runs": 6,
+  "imported": 6,
+  "reimport_duplicates": 6,
+  "video_decodes": 8,
+  "mug_decomposed": {
+    "asset_points": 639,
+    "ball_depth_points": 362,
+    "blank_prefix": 277,
+    "peak_depth_mm": 91.7512,
+    "video_width": 640,
+    "video_height": 480
+  },
+  "checks": {
+    "two_video_sources_loaded": true,
+    "condition_labels": true,
+    "missing_hash_filter": true,
+    "not_applicable_notice": true,
+    "no_automatic_human_verdict": true,
+    "refresh_readback": true
+  },
+  "grafana_visible": {
+    "completed": 24,
+    "error": 1,
+    "skipped": 2,
+    "current_judgments": 1
+  },
+  "layout": {
+    "clientWidth": 1033,
+    "scrollWidth": 1033
+  },
+  "console_errors": [],
+  "tests_passed": 67
+}
