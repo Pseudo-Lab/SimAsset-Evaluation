@@ -1,0 +1,46 @@
+{
+  "automated": {
+    "pytest": 68,
+    "node_presentation": 4
+  },
+  "browser": {
+    "engine": "internal browser",
+    "desktop_widths": [
+      1048,
+      1280
+    ],
+    "narrow_width": 390,
+    "narrow_page_overflow": false,
+    "real_video_ready_state": 4,
+    "playback_rate_test": 0.25,
+    "playback_time_advanced": true,
+    "media_mode_switch": true,
+    "chart_channel_switch": true,
+    "search_and_error_filter": true,
+    "save_and_revision": {
+      "scope": "temporary isolated PostgreSQL database",
+      "retained_fields": [
+        "criterion_key",
+        "protocol_version",
+        "rationale",
+        "evidence_ids"
+      ],
+      "old_judgment_preserved": true
+    },
+    "chart_keyboard_navigation": true,
+    "grafana_execution_drillthrough": true,
+    "grafana_collapsible_metrics": true,
+    "temporary_viewport_reset": true
+  },
+  "production_review_counts_unchanged": {
+    "runs": 27,
+    "asset_names": 7,
+    "reviewed_runs": 1
+  },
+  "cleanup": {
+    "temporary_database_removed": true,
+    "temporary_server_stopped": true,
+    "temporary_browser_tab_closed": true,
+    "main_review_and_grafana_running": true
+  }
+}

@@ -56,7 +56,7 @@ uv run python scripts/local_db.py stop
 
 ## Grafana 조회 구성
 
-판정 입력은 이 웹 화면에서 처리하고, Grafana에는 조회용 SQL 뷰만 허용합니다. Grafana OSS 13.3.1의 macOS ARM64 공식 배포본으로 네 패널의 실제 로딩과 조회 값을 확인했습니다. 다른 환경에서 처음 구성할 때는 [공식 설치 안내](https://grafana.com/docs/grafana/latest/setup-grafana/installation/mac/)에 따라 Grafana를 설치한 뒤 다음 명령을 실행합니다.
+판정 입력은 이 웹 화면에서 처리하고, Grafana에는 조회용 SQL 뷰만 허용합니다. Grafana OSS 13.3.1의 macOS ARM64 공식 배포본에서 요약 수치·상태 분포·상세 표의 실제 로딩과 조회 값을 확인했습니다. 다른 환경에서 처음 구성할 때는 [공식 설치 안내](https://grafana.com/docs/grafana/latest/setup-grafana/installation/mac/)에 따라 Grafana를 설치한 뒤 다음 명령을 실행합니다.
 
 ```bash
 uv run python scripts/grafana_readonly.py
@@ -75,7 +75,7 @@ uv run python scripts/local_db.py start
   --config "$PWD/.state/grafana/grafana.ini"
 ```
 
-[Grafana 결과 검토](http://127.0.0.1:3015/d/simasset-local-review)는 전체 수집분을 표시합니다. 기간 선택기는 숨겼고 30초 자동 갱신을 사용합니다. 측정값은 최대 1,000행을 조회하며, 에셋·측정 항목·유효 여부로 표를 필터링할 수 있습니다. 표의 숫자와 단위는 SI 기준이며 원본 항목명은 유지합니다. 실행 ID와 에셋 해시는 가로 스크롤로 확인합니다.
+[Grafana 결과 검토](http://127.0.0.1:3015/d/simasset-local-review)는 전체 수집분을 표시합니다. 기간 선택기는 숨겼고 30초 자동 갱신을 사용합니다. 측정값은 최대 1,000행을 조회하며, 에셋·측정 항목·유효 여부로 표를 필터링할 수 있습니다. 표의 숫자와 단위는 SI 기준이며 원본 항목명은 유지합니다. 측정값 표는 기본적으로 접혀 있으며 필요할 때 펼칩니다. 실행 보기 링크로 해당 실행의 영상·판정 화면에 바로 이동합니다. 전체 실행 ID와 에셋 해시는 검토 화면의 검사 조건·파일 탭에서도 확인할 수 있습니다.
 
 Grafana의 DB 계정은 뷰 SELECT만 허용하며 테이블 INSERT/UPDATE 권한이 없습니다. 공식 배포본의 SHA-256을 검증했고, 추가 플러그인 자동 설치는 껐습니다. [공식 PostgreSQL 데이터소스 안내](https://grafana.com/docs/grafana/latest/datasources/postgres/configure/)도 별도 읽기 전용 계정을 권장합니다.
 
@@ -83,12 +83,14 @@ Grafana의 DB 계정은 뷰 SELECT만 허용하며 테이블 INSERT/UPDATE 권�
 
 ```bash
 uv run pytest -q
+node --test tests/view-model.test.mjs
 ```
 
 테스트는 `simasset_review_test_...` 임시 DB를 만들고 끝난 뒤 해당 DB만 정리합니다. 실제 시제품 데이터는 지우지 않습니다.
 
 - [필드 대응·선택 이유·남은 질문](docs/필드대응과선택.md)
 - [로컬 검증 결과](docs/검증결과.md)
+- [화면 개편과 검증](docs/화면개편_검증.md)
 - [CPU·GPU 비교 실행 안내](docs/환경비교_실행안내.md)
 - [Nebius L40S 실측 결과](docs/Nebius_GPU_검증.md)
 - [팀 공유 메시지 초안](docs/팀공유_초안.md)

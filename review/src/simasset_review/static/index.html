@@ -1,13 +1,33 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SimAsset · 결과 검토</title><link rel="stylesheet" href="/static/style.css"></head>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+<title>SimAsset · 결과 검토</title><link rel="icon" href="/static/mark.svg" type="image/svg+xml"><link rel="stylesheet" href="/static/style.css">
+</head>
 <body>
-<header><a class="brand" href="/">S<span>SimAsset <b>Review</b></span></a><span class="local">로컬 검토본</span><button id="refresh">새로고침</button></header>
+<a class="skip-link" href="#detail">검토 내용으로 이동</a>
+<header class="app-header">
+<a class="brand" href="/" aria-label="SimAsset 홈"><img src="/static/mark.svg" alt="" width="30" height="30">SimAsset<span>Evaluation</span></a>
+<nav aria-label="작업 공간"><a class="nav-active" href="/" aria-current="page">결과 검토</a><a href="http://127.0.0.1:3015/d/simasset-local-review" target="_blank" rel="noopener">Grafana <span aria-hidden="true">↗</span></a></nav>
+<div class="header-actions"><span class="local"><i aria-hidden="true"></i>로컬 검토</span><button id="refresh" class="icon-button" aria-label="결과 새로고침" title="결과 새로고침"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M19 12a7 7 0 0 0-12-5L4 10m16 4-3 3a7 7 0 0 1-12-5"/></svg></button></div>
+</header>
 <main>
- <section class="intro"><div><p class="eyebrow">실행에서 판단까지</p><h1>같은 조건을 보고, 근거를 남깁니다.</h1><p>영상·측정값·검사 조건을 함께 확인하고 사람의 판정을 기록합니다.</p></div><div id="stats" aria-live="polite"></div></section>
- <section class="workspace">
-  <aside><h2>검사 결과</h2><div class="filters"><label>에셋<select id="asset" aria-label="에셋"><option value="">전체 에셋</option></select></label><label>검사<select id="test" aria-label="검사"><option value="">전체 검사</option></select></label><label>에셋 버전<select id="version" aria-label="에셋 버전"><option value="">전체 버전</option></select></label><label>자료 구분<select id="origin" aria-label="자료 구분"><option value="">모든 자료</option><option value="team_shared">팀 공유 결과</option><option value="local_reproduction">로컬 재현 결과</option><option value="fixture">기능 시험 데이터</option></select></label></div><div id="run-list" aria-live="polite"></div></aside>
-  <section id="detail"><div class="empty"><h2>검사 결과를 선택해주세요.</h2><p>왼쪽에서 실행을 선택하면 영상과 판정이 연결됩니다.</p></div></section>
- </section>
- <details class="imports"><summary>가져오기 기록 <span id="import-count"></span></summary><div id="imports"></div></details>
- <p id="notice" class="notice" role="status"></p>
-</main><script src="/static/app.js"></script></body></html>
+<section class="overview" aria-labelledby="page-title"><div><h1 id="page-title">검사 결과 검토</h1><p class="overview-caption">영상과 측정값을 함께 보고, 판정 근거를 남깁니다.</p></div><div id="stats" class="stats" aria-live="polite"><span class="hint">실행을 불러오는 중…</span></div></section>
+<div class="workspace">
+<aside class="run-sidebar" aria-label="검사 실행 찾기">
+<div class="section-heading"><h2>실행 목록</h2><span id="run-count" class="count">—</span></div>
+<label class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="search" placeholder="에셋·조건 검색" aria-label="실행 검색" autocomplete="off"></label>
+<div class="filters"><label>에셋<select id="asset"><option value="">전체 에셋</option></select></label><label>검사<select id="test"><option value="">전체 검사</option></select></label></div>
+<details class="extra-filters"><summary>추가 필터 <span id="filter-count"></span></summary><div class="filters"><label>에셋 버전<select id="version"><option value="">전체 버전</option></select></label><label>자료 구분<select id="origin"><option value="">모든 자료</option><option value="team_shared">팀 공유 결과</option><option value="local_reproduction">로컬 재현 결과</option><option value="fixture">기능 시험 데이터</option></select></label></div></details>
+<div class="queue-filter" role="group" aria-label="실행 목록 범위"><button data-queue="all" aria-pressed="true">전체</button><button data-queue="unreviewed" aria-pressed="false">판정 없음</button><button data-queue="error" aria-pressed="false">오류</button></div>
+<div id="run-list" aria-live="polite"><p class="list-empty">실행을 불러오는 중입니다.</p></div>
+<div class="sidebar-footer"><span>실행 상태 ≠ 사람 판정</span><button id="clear-filters" class="text-button">필터 초기화</button></div>
+</aside>
+<section id="detail" aria-label="선택한 실행 검토" tabindex="-1"><div class="empty"><div class="empty-symbol" aria-hidden="true">◇</div><h2>결과를 불러오고 있습니다.</h2><p>저장된 영상과 측정값을 확인합니다.</p></div></section>
+</div>
+<details class="imports"><summary>가져오기 기록 <span id="import-count"></span></summary><div id="imports"></div></details>
+<footer class="page-footer"><span>SimAsset Evaluation</span><span>실행 조건과 원본 단위를 함께 보존합니다.</span></footer>
+</main>
+<div id="notice" class="notice" role="status" aria-live="polite"><span></span><button type="button" aria-label="알림 닫기">×</button></div>
+<script type="module" src="/static/app.js"></script>
+</body></html>
