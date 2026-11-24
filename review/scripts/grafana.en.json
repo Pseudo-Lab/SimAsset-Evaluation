@@ -60,5 +60,8 @@
   "검사 실행 상태별 건수입니다.": "Run counts by execution status.",
   "평가자·항목별 최신 판정 50건을 표시합니다.": "Latest 50 current assessments by reviewer and criterion.",
   "에셋·버전·검사·출처별 실행 수입니다.": "Run counts by asset, version, test and source.",
-  "원본 항목별 SI 측정값입니다. 빈 값은 미측정입니다.": "SI measurements by source field. Empty values are not measured."
+  "원본 항목별 SI 측정값입니다. 빈 값은 미측정입니다.": "SI measurements by source field. Empty values are not measured.",
+  "가만히 두기": "Settle test",
+  "떨어뜨리기": "Drop test",
+  "스핀 검사": "Spin test"
 }

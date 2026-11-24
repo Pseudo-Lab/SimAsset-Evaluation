@@ -19,9 +19,11 @@ test('English and Korean labels preserve interpolation values',()=>{
   assert.equal(t('source_{original}',{},'en'),'source_{original}');
 });
 test('all literal Korean UI messages have an English entry',async()=>{
-  const source=await readFile(new URL('../src/simasset_review/static/app.js',import.meta.url),'utf8');
-  const keys=[...source.matchAll(/'([^'\n]*[가-힣][^'\n]*)'/g)].map(m=>m[1].replace(/\\n/g,'\n'));
-  assert.deepEqual([...new Set(keys)].filter(key=>!(key in english)),[]);
+  for(const file of ['app.js','view-model.mjs']){
+    const source=await readFile(new URL('../src/simasset_review/static/'+file,import.meta.url),'utf8');
+    const keys=[...source.matchAll(/'([^'\n]*[가-힣][^'\n]*)'/g)].map(m=>m[1].replace(/\\n/g,'\n'));
+    assert.deepEqual([...new Set(keys)].filter(key=>!(key in english)),[],file);
+  }
 });
 test('search accepts either UI language and canonically equivalent Korean',()=>{
   const row={asset:'한글',test_type:'probe',condition:'decomposed',judgments:0};
