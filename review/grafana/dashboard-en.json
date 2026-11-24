@@ -1,0 +1,1252 @@
+{
+  "uid": "simasset-local-review-en",
+  "title": "SimAsset · Test results",
+  "schemaVersion": 39,
+  "version": 6,
+  "editable": false,
+  "refresh": "30s",
+  "timezone": "browser",
+  "tags": [
+    "simasset-evaluation"
+  ],
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 20,
+      "title": "",
+      "type": "text",
+      "transparent": true,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 2
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## SimAsset / Test results"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Stored runs",
+      "type": "stat",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 2,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT coalesce(sum(run_count),0)::bigint AS runs FROM review.v_test_coverage",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "horizontal",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 46
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "—",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Asset names",
+      "type": "stat",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 2,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT count(DISTINCT asset) AS assets FROM review.v_test_coverage",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "horizontal",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 46
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "—",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Number of distinct asset names."
+    },
+    {
+      "id": 12,
+      "title": "Execution errors",
+      "type": "stat",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 2,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT coalesce(sum(run_count) FILTER(WHERE execution_status='error'),0)::bigint AS errors FROM review.v_test_coverage",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "horizontal",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 46
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "—",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "title": "Reviewed runs",
+      "type": "stat",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 2,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT count(DISTINCT run_id) AS reviewed FROM review.v_current_judgments",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "horizontal",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 46
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "—",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Runs with a current assessment, counted once per run."
+    },
+    {
+      "id": 1,
+      "title": "Execution status",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT execution_status, sum(run_count)::bigint AS runs FROM review.v_test_coverage GROUP BY execution_status ORDER BY execution_status",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "showUnfilled": true,
+        "minVizHeight": 22,
+        "minVizWidth": 8,
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "text": {
+          "titleSize": 13,
+          "valueSize": 20
+        },
+        "namePlacement": "left",
+        "valueMode": "color"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "completed"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Completed"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Execution errors"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "skipped"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Not applicable"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Run counts by execution status.",
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {
+            "mappings": [
+              {
+                "fieldName": "execution_status",
+                "handlerKey": "field.name"
+              },
+              {
+                "fieldName": "runs",
+                "handlerKey": "field.value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Recent human assessments",
+      "type": "table",
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT outcome,reviewer,criterion_key,protocol_version,run_id FROM review.v_current_judgments ORDER BY reviewed_at DESC LIMIT 50",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": false
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outcome"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Assessment"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "pass": {
+                        "text": "Pass",
+                        "color": "green"
+                      },
+                      "fail": {
+                        "text": "Fail",
+                        "color": "red"
+                      },
+                      "inconclusive": {
+                        "text": "Inconclusive",
+                        "color": "orange"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "reviewer"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Reviewer"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "criterion_key"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Criterion"
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "physical_behavior": {
+                        "text": "Overall physical behavior"
+                      },
+                      "penetration": {
+                        "text": "Penetration"
+                      },
+                      "stability": {
+                        "text": "Stability"
+                      },
+                      "motion": {
+                        "text": "Motion mode"
+                      },
+                      "cavity": {
+                        "text": "Cavity preservation"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "protocol_version"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Rubric version"
+              },
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Open run"
+              },
+              {
+                "id": "custom.width",
+                "value": 105
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Video & assessment ↗",
+                    "url": "http://127.0.0.1:8765/?lang=en#${__value.raw}",
+                    "targetBlank": true
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "data-links"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Latest 50 current assessments by reviewer and criterion."
+    },
+    {
+      "id": 3,
+      "title": "Runs by asset · Versions and sources",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT asset, sum(run_count)::bigint AS runs, count(DISTINCT source_namespace) AS batches, execution_status,source_status,test_type,origin,asset_version FROM review.v_test_coverage GROUP BY asset,asset_version,test_type,origin,execution_status,source_status ORDER BY asset,test_type,asset_version,origin,execution_status,source_status",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "enablePagination": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "minWidth": 55,
+            "filterable": false
+          },
+          "unit": "none",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "runs"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Runs"
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "execution_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Execution status"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "completed": {
+                        "text": "Completed",
+                        "color": "text"
+                      },
+                      "error": {
+                        "text": "Execution errors",
+                        "color": "red"
+                      },
+                      "skipped": {
+                        "text": "Not applicable",
+                        "color": "text"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "source_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Source status"
+              },
+              {
+                "id": "custom.width",
+                "value": 125
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "origin"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Source"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "local_reproduction": {
+                        "text": "Local reproduction"
+                      },
+                      "team_shared": {
+                        "text": "Team-shared source"
+                      },
+                      "fixture": {
+                        "text": "Test fixture"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Asset"
+              },
+              {
+                "id": "custom.width",
+                "value": 125
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "batches"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Batches"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "test_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Test"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "probe": {
+                        "text": "Cavity test"
+                      },
+                      "incline": {
+                        "text": "Incline test"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "asset_version"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Asset hash"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Run counts by asset, version, test and source."
+    },
+    {
+      "id": 40,
+      "title": "All measurements · Expand for up to 1,000 rows",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 4,
+          "title": "Measurements · SI values and source fields",
+          "type": "table",
+          "gridPos": {
+            "x": 0,
+            "y": 22,
+            "w": 24,
+            "h": 12
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "simasset-local-postgres"
+              },
+              "rawSql": "SELECT asset,metric_name,metric_value,unit,valid,invalid_reason,metric_text,seed,run_id,asset_version,test_type,origin FROM review.v_run_metrics ORDER BY asset,run_id,metric_name LIMIT 1000",
+              "format": "table",
+              "rawQuery": true
+            }
+          ],
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "enablePagination": true
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "minWidth": 55,
+                "filterable": false
+              },
+              "unit": "none",
+              "noValue": "—"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "origin"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Source"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 95
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "local_reproduction": {
+                            "text": "Local reproduction"
+                          },
+                          "team_shared": {
+                            "text": "Team-shared source"
+                          },
+                          "fixture": {
+                            "text": "Test fixture"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.filterable",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "asset"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Asset"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 125
+                  },
+                  {
+                    "id": "custom.filterable",
+                    "value": true
+                  },
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "Review run",
+                        "url": "http://127.0.0.1:8765/?lang=en#${__data.fields.run_id}",
+                        "targetBlank": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "test_type"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Test"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 85
+                  },
+                  {
+                    "id": "custom.filterable",
+                    "value": true
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "probe": {
+                            "text": "Cavity test"
+                          },
+                          "incline": {
+                            "text": "Incline test"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "asset_version"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Asset hash"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 160
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "metric_name"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Metric"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 180
+                  },
+                  {
+                    "id": "custom.filterable",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "metric_value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Value (SI)"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 130
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 8
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "metric_text"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Text value"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 150
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "unit"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Unit (SI)"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 85
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "valid"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Validity"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 105
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "true": {
+                            "text": "Valid"
+                          },
+                          "false": {
+                            "text": "Missing / invalid"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.filterable",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "invalid_reason"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Missing reason"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 160
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "seed"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Seed"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 55
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "run_id"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Run ID"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 105
+                  },
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "Video & assessment ↗",
+                        "url": "http://127.0.0.1:8765/?lang=en#${__value.raw}",
+                        "targetBlank": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "data-links"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "SI measurements by source field. Empty values are not measured."
+        }
+      ]
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": []
+  },
+  "description": "Test runs and assessments in one place.",
+  "timepicker": {
+    "hidden": true,
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "links": [
+    {
+      "title": "Review videos & assessments ↗",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:8765/?lang=en",
+      "targetBlank": true
+    },
+    {
+      "title": "Theme settings",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/profile",
+      "targetBlank": false,
+      "tooltip": "Choose Light, Dark or System preference under Preferences → Interface theme."
+    },
+    {
+      "title": "한국어",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/d/simasset-local-review",
+      "targetBlank": false,
+      "keepTime": true
+    },
+    {
+      "title": "English",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/d/simasset-local-review-en",
+      "targetBlank": false,
+      "keepTime": true
+    }
+  ]
+}

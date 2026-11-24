@@ -1,0 +1,542 @@
+{
+  "manifest": {
+    "started_at": "2026-11-17T18:13:31.180332+00:00",
+    "assets": [
+      "block_mu03",
+      "tall_box",
+      "blob_mesh"
+    ],
+    "completed": [
+      "block_mu03-cpu",
+      "block_mu03-sw",
+      "block_mu03-gpu",
+      "tall_box-cpu",
+      "tall_box-sw",
+      "tall_box-gpu",
+      "blob_mesh-cpu",
+      "blob_mesh-sw",
+      "blob_mesh-gpu",
+      "e3-sw",
+      "e3-gpu"
+    ],
+    "status": "complete",
+    "repeats": 3,
+    "seed": 0,
+    "tolerances": {
+      "position_m": 1e-06,
+      "quaternion_component": 1e-06
+    },
+    "notes": [
+      "Personal numerical tolerances, not team verdicts",
+      "E2 reuses E1 states; no mj_step",
+      "With a baseline, E1 reuses its verified initial state and preserves native settling differences"
+    ],
+    "finished_at": "2026-11-17T18:15:44.360574+00:00",
+    "wall_s": 133.180282825
+  },
+  "artifact": {
+    "sha256": "587e7626af7219a1913c786a7373b7c05d521b9edb73d81c5cd01a3870f3e805",
+    "bytes": 3809407,
+    "verified": true
+  },
+  "assets": [
+    {
+      "asset": "block_mu03",
+      "environment": {
+        "at": "2026-11-17T18:13:34.986348+00:00",
+        "os": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "python": "3.11.15",
+        "mujoco": "3.17.0",
+        "logical_cpus": 8,
+        "MUJOCO_GL": "osmesa"
+      },
+      "physics_comparison": {
+        "same_conditions": true,
+        "frames": 240,
+        "position_max_abs_m": 9.002798506685394e-13,
+        "quaternion_max_component_difference": 7.374059696196866e-12,
+        "final_qpos_raw_max_abs": 7.373990307257827e-12,
+        "tolerance": {
+          "position_m": 1e-06,
+          "quaternion_component": 1e-06
+        },
+        "within_numerical_tolerance": true,
+        "asset_acceptance": "not_evaluated",
+        "note": "Diagnostic tolerances are a personal comparison draft, not team acceptance thresholds."
+      },
+      "initial_state_source": {
+        "mode": "verified-baseline",
+        "baseline_states_sha256": "f30715f4e36357ba5fc763c9ec57e6b9291b1a275468b16d4284b137315d91fb",
+        "native_initial": [
+          0.0,
+          -0.2318431048227657,
+          -0.0009669447289429418,
+          0.250118044507466,
+          0.9215180735884111,
+          0.004840685275079995,
+          0.3883001255216404,
+          -0.0020050775167772326,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_state_max_abs_difference": 2.1043842016177372e-11,
+        "note": "Native settling is preserved for diagnosis; the measured trajectory uses the baseline initial state."
+      },
+      "physics_wall_median_s": 0.025513755000005744,
+      "physics_warnings": [
+        0,
+        0,
+        0
+      ],
+      "physics_finite": true,
+      "e2": {
+        "sw_wall_median_s": 6.903156655000004,
+        "gpu_wall_median_s": 0.33038515999999163,
+        "wall_speedup": 20.894269751704883,
+        "sw_render_median_s": 6.679807038999996,
+        "gpu_render_median_s": 0.14502759499997353,
+        "renderers": [
+          "llvmpipe (LLVM 20.1.2, 256 bits)",
+          "NVIDIA L40S/PCIe/SSE2"
+        ],
+        "pixel_diagnostics": [
+          {
+            "frame": "frame-0.png",
+            "rgb_rmse_0_255": 1.762457212345089,
+            "rgb_max_abs_0_255": 118.0
+          },
+          {
+            "frame": "frame-120.png",
+            "rgb_rmse_0_255": 1.0940108815856349,
+            "rgb_max_abs_0_255": 117.0
+          }
+        ]
+      },
+      "e3": {
+        "sw_wall_median_s": 4.352189667000005,
+        "gpu_wall_median_s": 1.3582283469999936,
+        "sw_phase_medians": {
+          "model_build_s": 0.02439974400002143,
+          "cpu_step_s": 0.02328989700001216,
+          "recorder_init_s": 0.18602629299999762,
+          "capture_render_encode_s": 3.467716660000349,
+          "recorder_finalize_s": 0.030016931000005798,
+          "plot_s": 0.24646175399999493
+        },
+        "gpu_phase_medians": {
+          "model_build_s": 0.02454683199999863,
+          "cpu_step_s": 0.02019565699947634,
+          "recorder_init_s": 0.12618379000002733,
+          "capture_render_encode_s": 0.5123542669991537,
+          "recorder_finalize_s": 0.032627681000008124,
+          "plot_s": 0.24802320300000247
+        },
+        "wall_speedup": 3.204313675688603
+      }
+    },
+    {
+      "asset": "tall_box",
+      "environment": {
+        "at": "2026-11-17T18:14:01.618820+00:00",
+        "os": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "python": "3.11.15",
+        "mujoco": "3.17.0",
+        "logical_cpus": 8,
+        "MUJOCO_GL": "osmesa"
+      },
+      "physics_comparison": {
+        "same_conditions": true,
+        "frames": 240,
+        "position_max_abs_m": 4.778328991164593e-12,
+        "quaternion_max_component_difference": 4.186727180222061e-11,
+        "final_qpos_raw_max_abs": 2.5695660876845494e-11,
+        "tolerance": {
+          "position_m": 1e-06,
+          "quaternion_component": 1e-06
+        },
+        "within_numerical_tolerance": true,
+        "asset_acceptance": "not_evaluated",
+        "note": "Diagnostic tolerances are a personal comparison draft, not team acceptance thresholds."
+      },
+      "initial_state_source": {
+        "mode": "verified-baseline",
+        "baseline_states_sha256": "d8f41e77e27d8d1f667c48ee9d83fa941bd83dc23659c5fa7eebec121204f08d",
+        "native_initial": [
+          0.0,
+          -0.2212218079413903,
+          -0.0009669447289429418,
+          0.3093728657758825,
+          0.9215180735884644,
+          0.004840685283816419,
+          0.38830012552151555,
+          -0.0020050774957341656,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_state_max_abs_difference": 2.1920833204180923e-14,
+        "note": "Native settling is preserved for diagnosis; the measured trajectory uses the baseline initial state."
+      },
+      "physics_wall_median_s": 0.024536237000006622,
+      "physics_warnings": [
+        0,
+        0,
+        0
+      ],
+      "physics_finite": true,
+      "e2": {
+        "sw_wall_median_s": 6.891460007000006,
+        "gpu_wall_median_s": 0.34346835200000214,
+        "wall_speedup": 20.064323151962377,
+        "sw_render_median_s": 6.709632372000087,
+        "gpu_render_median_s": 0.14449223299988034,
+        "renderers": [
+          "llvmpipe (LLVM 20.1.2, 256 bits)",
+          "NVIDIA L40S/PCIe/SSE2"
+        ],
+        "pixel_diagnostics": [
+          {
+            "frame": "frame-0.png",
+            "rgb_rmse_0_255": 1.762740391900098,
+            "rgb_max_abs_0_255": 118.0
+          },
+          {
+            "frame": "frame-120.png",
+            "rgb_rmse_0_255": 1.0946593442076449,
+            "rgb_max_abs_0_255": 117.0
+          }
+        ]
+      },
+      "e3": {
+        "sw_wall_median_s": 4.416790463000012,
+        "gpu_wall_median_s": 1.2852365050000003,
+        "sw_phase_medians": {
+          "model_build_s": 0.0245846800000038,
+          "cpu_step_s": 0.023857365000139907,
+          "recorder_init_s": 0.18753587099999436,
+          "capture_render_encode_s": 3.508990048000072,
+          "recorder_finalize_s": 0.03043617399998766,
+          "plot_s": 0.22938343399999894
+        },
+        "gpu_phase_medians": {
+          "model_build_s": 0.02421929799999134,
+          "cpu_step_s": 0.020904995000421422,
+          "recorder_init_s": 0.1316919870000106,
+          "capture_render_encode_s": 0.4902873559990155,
+          "recorder_finalize_s": 0.03207657799998742,
+          "plot_s": 0.2254974380000192
+        },
+        "wall_speedup": 3.436558521188294
+      }
+    },
+    {
+      "asset": "blob_mesh",
+      "environment": {
+        "at": "2026-11-17T18:14:25.732526+00:00",
+        "os": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "python": "3.11.15",
+        "mujoco": "3.17.0",
+        "logical_cpus": 8,
+        "MUJOCO_GL": "osmesa"
+      },
+      "physics_comparison": {
+        "same_conditions": true,
+        "frames": 240,
+        "position_max_abs_m": 6.121765420974423e-12,
+        "quaternion_max_component_difference": 2.3529053705395597e-11,
+        "final_qpos_raw_max_abs": 6.290509779738329e-12,
+        "tolerance": {
+          "position_m": 1e-06,
+          "quaternion_component": 1e-06
+        },
+        "within_numerical_tolerance": true,
+        "asset_acceptance": "not_evaluated",
+        "note": "Diagnostic tolerances are a personal comparison draft, not team acceptance thresholds."
+      },
+      "initial_state_source": {
+        "mode": "verified-baseline",
+        "baseline_states_sha256": "374751b5c60d275d028812905076982d3ae134beb1b2dbf666c3bb0d60aa3650",
+        "native_initial": [
+          0.0,
+          -0.14223184893864424,
+          -0.0009669447289429418,
+          0.20978850407030353,
+          0.9037281784027758,
+          0.05659276808533914,
+          0.42322144668846967,
+          -0.030923214971263168,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_state_max_abs_difference": 3.2442243336205934e-12,
+        "note": "Native settling is preserved for diagnosis; the measured trajectory uses the baseline initial state."
+      },
+      "physics_wall_median_s": 0.02977403500000264,
+      "physics_warnings": [
+        0,
+        0,
+        0
+      ],
+      "physics_finite": true,
+      "e2": {
+        "sw_wall_median_s": 6.935036732,
+        "gpu_wall_median_s": 0.3318509199999937,
+        "wall_speedup": 20.898048834700027,
+        "sw_render_median_s": 6.739751943000073,
+        "gpu_render_median_s": 0.14469125899989876,
+        "renderers": [
+          "llvmpipe (LLVM 20.1.2, 256 bits)",
+          "NVIDIA L40S/PCIe/SSE2"
+        ],
+        "pixel_diagnostics": [
+          {
+            "frame": "frame-0.png",
+            "rgb_rmse_0_255": 2.04748321116438,
+            "rgb_max_abs_0_255": 118.0
+          },
+          {
+            "frame": "frame-120.png",
+            "rgb_rmse_0_255": 1.4813789207844308,
+            "rgb_max_abs_0_255": 118.0
+          }
+        ]
+      },
+      "e3": {
+        "sw_wall_median_s": 4.333980808999996,
+        "gpu_wall_median_s": 1.3042841130000227,
+        "sw_phase_medians": {
+          "model_build_s": 0.024217364000008956,
+          "cpu_step_s": 0.02796039000028827,
+          "recorder_init_s": 0.1868846809999809,
+          "capture_render_encode_s": 3.442804953000689,
+          "recorder_finalize_s": 0.030969618999989734,
+          "plot_s": 0.2385499970000069
+        },
+        "gpu_phase_medians": {
+          "model_build_s": 0.024252397999987352,
+          "cpu_step_s": 0.02429069899963565,
+          "recorder_init_s": 0.12578514999998447,
+          "capture_render_encode_s": 0.5027855629994349,
+          "recorder_finalize_s": 0.03222871499997382,
+          "plot_s": 0.2332526719999919
+        },
+        "wall_speedup": 3.322880932001294
+      }
+    }
+  ],
+  "source_comparison": {
+    "same_conditions": true,
+    "runs": [
+      {
+        "asset": "block_mu03",
+        "repeat": 0,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          6.030679883999994,
+          1.8039835479999908
+        ]
+      },
+      {
+        "asset": "tall_box",
+        "repeat": 0,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.416790463000012,
+          1.2968451739999978
+        ]
+      },
+      {
+        "asset": "blob_mesh",
+        "repeat": 0,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.445292478999988,
+          1.3042841130000227
+        ]
+      },
+      {
+        "asset": "block_mu03",
+        "repeat": 1,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.330951612000007,
+          1.3028193460000068
+        ]
+      },
+      {
+        "asset": "tall_box",
+        "repeat": 1,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.381588387000022,
+          1.2852365050000003
+        ]
+      },
+      {
+        "asset": "blob_mesh",
+        "repeat": 1,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.333980808999996,
+          1.3104519540000013
+        ]
+      },
+      {
+        "asset": "block_mu03",
+        "repeat": 2,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.352189667000005,
+          1.3582283469999936
+        ]
+      },
+      {
+        "asset": "tall_box",
+        "repeat": 2,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.444835891000025,
+          1.281981404999982
+        ]
+      },
+      {
+        "asset": "blob_mesh",
+        "repeat": 2,
+        "status": [
+          "ok",
+          "ok"
+        ],
+        "status_equal": true,
+        "timeseries_exact_equal": true,
+        "metric_differences": {},
+        "wall_s": [
+          4.330012198999981,
+          1.3012733750000223
+        ]
+      }
+    ],
+    "asset_acceptance": "not_evaluated",
+    "note": "Raw numeric/text differences remain visible; source execution status is not a human verdict."
+  },
+  "scope": "Three synthetic sample assets, fixed CPU trajectories, same-state rendering, and source harness video/plot pipelines; not 50-asset acceptance or GPU physics.",
+  "gpu_monitor": {
+    "samples": 133,
+    "gpu_util_max_pct": 6.0,
+    "vram_max_mib": 253.0,
+    "sampling_interval_s": 1
+  },
+  "executed_wrappers": {
+    "scripts/benchmark.py": {
+      "sha256": "40c52b17b7be40395640a3a6ec2bf65ca05b850358b4b00e296320f15c246ad5",
+      "matches_local": true
+    },
+    "scripts/cloud_benchmark.py": {
+      "sha256": "56603a8027f2574bfb160e6c5452f05c1ae7169ac346d34e8b1fed9225a7fddc",
+      "matches_local": true
+    }
+  },
+  "media": {
+    "video_count": 54,
+    "all_decode_clean": true,
+    "png_count": 30
+  },
+  "cost": {
+    "observed_at": "2026-11-17T18:20:34.152357+00:00",
+    "final_bill_confirmed": false,
+    "cost_basis": "Conservative estimate: full creation-to-deletion windows including waiting and stopped periods multiplied by the console hourly totals. Pre-tax; not a settlement or account-wide charge attribution.",
+    "attempts": [
+      {
+        "platform": "RTX PRO 6000",
+        "created_at": "2026-11-17T17:43:32.175168+00:00",
+        "deletion_observed_at": "2026-11-17T17:57:37.933275+00:00",
+        "elapsed_s": 845.758107,
+        "console_hourly_usd": 1.8,
+        "estimate_usd": 0.42287905350000005
+      },
+      {
+        "platform": "L40S",
+        "created_at": "2026-11-17T18:03:33.124823+00:00",
+        "deletion_observed_at": "2026-11-17T18:18:06.250905+00:00",
+        "elapsed_s": 873.126082,
+        "console_hourly_usd": 1.57,
+        "estimate_usd": 0.3807799857611111
+      }
+    ],
+    "pricing_source": "https://docs.nebius.com/compute/resources/pricing",
+    "combined_conservative_estimate_usd": 0.8036590392611112
+  },
+  "cleanup": {
+    "created_vms_deleted": 2,
+    "managed_disks_deleted": 2,
+    "l40s_dynamic_ip_absent": true,
+    "task_private_keys_removed": true,
+    "unrelated_resources_changed": false
+  },
+  "automated_tests": {
+    "passed": 39,
+    "warnings": 1,
+    "warning": "Existing Starlette testclient deprecation warning"
+  }
+}

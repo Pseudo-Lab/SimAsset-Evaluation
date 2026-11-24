@@ -1,0 +1,16 @@
+{
+  "subscription_id": "00000000-0000-0000-0000-000000000000",
+  "tenant_id": "00000000-0000-0000-0000-000000000000",
+  "resource_group": "rg-simasset-personal-gpu-lab",
+  "location": "eastus2",
+  "vm_size": "Standard_NC4as_T4_v3",
+  "vm_name": "simasset-personal-t4",
+  "approval": {
+    "approved": false,
+    "human_reference": "",
+    "max_hours": null,
+    "cap_usd": null,
+    "vm_hourly_usd": null,
+    "reserved_non_compute_usd": null
+  }
+}

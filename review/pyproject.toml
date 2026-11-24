@@ -1,0 +1,23 @@
+[project]
+name = "simasset-review"
+version = "0.1.0"
+description = "Local, evidence-preserving batch import and human review for SimAsset results"
+requires-python = ">=3.11"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "psycopg[binary]>=3.2,<4"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "httpx>=0.28,<1"]
+benchmark = ["mujoco==3.17.0", "numpy>=2,<3", "pyyaml>=6,<7", "matplotlib>=3.9,<4", "imageio>=2.37,<3", "imageio-ffmpeg>=0.6,<1", "pillow>=11,<13"]
+
+[project.scripts]
+simasset-review = "simasset_review.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/simasset_review"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

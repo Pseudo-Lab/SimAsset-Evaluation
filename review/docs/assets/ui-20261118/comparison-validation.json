@@ -1,0 +1,363 @@
+{
+  "date": "2026-11-18",
+  "checks": {
+    "axes": [
+      [
+        "-28.9",
+        "14.3",
+        "57.5",
+        "101",
+        "0",
+        "0.319",
+        "0.638",
+        "0.957",
+        "1.28",
+        "mm",
+        "s"
+      ],
+      [
+        "-28.9",
+        "14.3",
+        "57.5",
+        "101",
+        "0",
+        "0.319",
+        "0.638",
+        "0.957",
+        "1.28",
+        "mm",
+        "s"
+      ]
+    ],
+    "cursorBeyondShorterRun": [
+      "1.276 s · 86.998 mm",
+      "1.276 s · — mm"
+    ],
+    "seekEnd": [
+      {
+        "duration": 0.733008,
+        "paused": true,
+        "time": 0.733
+      },
+      {
+        "duration": 0.633008,
+        "paused": true,
+        "time": 0.633008
+      }
+    ],
+    "playBoth": [
+      {
+        "paused": false,
+        "rate": 0.25,
+        "time": 0.0582
+      },
+      {
+        "paused": false,
+        "rate": 0.25,
+        "time": 0.0582
+      }
+    ],
+    "pauseBoth": [
+      true,
+      true
+    ],
+    "missing": {
+      "playDisabled": [
+        true,
+        true,
+        true
+      ],
+      "plots": [
+        {
+          "label": "A · 공의 진입 깊이",
+          "svg": true
+        },
+        {
+          "label": "B · 공의 진입 깊이",
+          "svg": false
+        }
+      ],
+      "text": "실행 비교\n닫기\n기준 실행\nmug_cad\n볼록 분해 · 314badf4\n비교 실행\nmug_cad · 단일 볼록체 · 07ea3f88\nbowl_cad · 단일 볼록체 · 0aa0f869\nsolid_cyl · 단일 볼록체 · d7ff8a6d\nbowl_cad · 볼록 분해 · 07dd0a08\nsolid_cyl · 볼록 분해 · fa8c3098\n함께 재생\n처음으로\n1×\n영상 시간\n0 s\nA\nmug_cad\n실행 완료\n볼록 분해 · seed 0 · 4a2235db\n외형 보기\n충돌 형상\nclip_visual.mp4\n영상 열기 ↗\n안착 진입 깊이\n87\nmm\n최대 관통 깊이\n4.754\nmm\n공 안착 시간\n0.224\ns\nB\nsolid_cyl\n대상 아님\n단일 볼록체 · seed 0 · 해시 미기록\n검사 대상이 아닙니다.\n\n이 결과에는 영상과 시계열을 생성하지 않습니다.\n\n안착 진입 깊이\n—\n최대 관통 깊이\n—\n공 안착 시간\n—\n그래프 항목\n진입 깊이\n관통 깊이\n질량중심\nA · 공의 진입 깊이\n최대 91.751 mm\n-28.9\n14.3\n57.5\n101\n0\n0.319\n0.638\n0.957\n1.28\nmm\ns\n— s · — mm\nB · 공의 진입 깊이\n\n유효한 관측값이 없습니다."
+    },
+    "chartOverview": {
+      "overflow": 0,
+      "readouts": [
+        "1.276 s · 86.998 mm",
+        "1.276 s · 0.00063083 mm",
+        "1.276 s · 39.148 mm"
+      ],
+      "xAxes": [
+        [
+          "0",
+          "0.319",
+          "0.638",
+          "0.957",
+          "1.28"
+        ],
+        [
+          "0",
+          "0.319",
+          "0.638",
+          "0.957",
+          "1.28"
+        ],
+        [
+          "0",
+          "0.319",
+          "0.638",
+          "0.957",
+          "1.28"
+        ]
+      ]
+    },
+    "draftBefore": [
+      {
+        "checked": false,
+        "name": "reviewer",
+        "value": "비교 화면 시험"
+      },
+      {
+        "checked": false,
+        "name": "criterion_key",
+        "value": "cavity"
+      },
+      {
+        "checked": false,
+        "name": "outcome",
+        "value": "pass"
+      },
+      {
+        "checked": false,
+        "name": "outcome",
+        "value": "fail"
+      },
+      {
+        "checked": true,
+        "name": "outcome",
+        "value": "inconclusive"
+      },
+      {
+        "checked": false,
+        "name": "rationale",
+        "value": "비교창을 열고 닫아도 이 판단과 근거를 유지합니다. Comparison draft 🧪"
+      },
+      {
+        "checked": false,
+        "name": "protocol_version",
+        "value": "comparison-qa-1"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "4f37598e-e332-5478-a6ef-567e9376730f"
+      },
+      {
+        "checked": true,
+        "name": "evidence",
+        "value": "b9c4e9ca-f505-53b7-ad4c-c20279096fa4"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "7a3e47f6-86dc-5d35-b70b-6d1b28aadfb0"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "84a78a0f-82ca-5364-8ebf-bb72981ba82b"
+      },
+      {
+        "checked": true,
+        "name": "evidence",
+        "value": "48ca8664-adf2-5604-bf51-4e4fe3a1c095"
+      }
+    ],
+    "draftAfter": [
+      {
+        "checked": false,
+        "name": "reviewer",
+        "value": "비교 화면 시험"
+      },
+      {
+        "checked": false,
+        "name": "criterion_key",
+        "value": "cavity"
+      },
+      {
+        "checked": false,
+        "name": "outcome",
+        "value": "pass"
+      },
+      {
+        "checked": false,
+        "name": "outcome",
+        "value": "fail"
+      },
+      {
+        "checked": true,
+        "name": "outcome",
+        "value": "inconclusive"
+      },
+      {
+        "checked": false,
+        "name": "rationale",
+        "value": "비교창을 열고 닫아도 이 판단과 근거를 유지합니다. Comparison draft 🧪"
+      },
+      {
+        "checked": false,
+        "name": "protocol_version",
+        "value": "comparison-qa-1"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "4f37598e-e332-5478-a6ef-567e9376730f"
+      },
+      {
+        "checked": true,
+        "name": "evidence",
+        "value": "b9c4e9ca-f505-53b7-ad4c-c20279096fa4"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "7a3e47f6-86dc-5d35-b70b-6d1b28aadfb0"
+      },
+      {
+        "checked": false,
+        "name": "evidence",
+        "value": "84a78a0f-82ca-5364-8ebf-bb72981ba82b"
+      },
+      {
+        "checked": true,
+        "name": "evidence",
+        "value": "48ca8664-adf2-5604-bf51-4e4fe3a1c095"
+      }
+    ],
+    "draftPreserved": true,
+    "savedHistory": "보류\n비교 화면 시험\n\n비교창을 열고 닫아도 이 판단과 근거를 유지합니다. Comparison draft 🧪\n\ncavity · comparison-qa-1 · 11월 18일 오전 06:59\n이 판정 수정",
+    "editFromDialog": {
+      "dialogOpen": false,
+      "focus": "rationale",
+      "reason": "비교창을 열고 닫아도 이 판단과 근거를 유지합니다. Comparison draft 🧪"
+    },
+    "originalDatabase": {
+      "runs": 27,
+      "reviewedRuns": 1
+    },
+    "qaStored": {
+      "reviewer": "비교 화면 시험",
+      "criterion": "cavity",
+      "protocol": "comparison-qa-1",
+      "evidenceCount": 2,
+      "outcome": "inconclusive"
+    },
+    "qaCleanup": "Temporary database, server and tab removed",
+    "selectedRunVisible": true,
+    "viewportOverride": "reset; native 1048x953 confirmed after reload",
+    "console": "No app-origin errors; unrelated extension warnings present"
+  },
+  "viewports": [
+    {
+      "formScroll": [
+        546,
+        546
+      ],
+      "name": "workspace",
+      "page": [
+        1280,
+        800
+      ],
+      "saveBottom": 711.0546875,
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "bottom": 767,
+      "dialog": [
+        706,
+        706
+      ],
+      "name": "comparison",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "name": "mobile workspace",
+      "page": [
+        375,
+        2139
+      ],
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "body": [
+        357,
+        357
+      ],
+      "columns": "333px",
+      "dialogWidth": 372,
+      "name": "mobile comparison",
+      "pageWidth": 375,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "form": [
+        546,
+        546
+      ],
+      "name": "English workspace",
+      "page": [
+        1280,
+        800
+      ],
+      "saveBottom": 711.0546875,
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "form": [
+        514,
+        514
+      ],
+      "name": "English compact desktop",
+      "page": [
+        1024,
+        768
+      ],
+      "saveBottom": 679.0546875,
+      "viewport": [
+        1024,
+        768
+      ]
+    },
+    {
+      "name": "restored native workspace",
+      "page": [
+        1048,
+        953
+      ],
+      "videoReady": 4,
+      "viewport": [
+        1048,
+        953
+      ]
+    }
+  ],
+  "tests": {
+    "nodePassed": 12,
+    "syntax": "passed"
+  }
+}
