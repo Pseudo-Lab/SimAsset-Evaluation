@@ -1,0 +1,124 @@
+# SimAsset 결과 검토 도구: PostgreSQL + 검토 앱 + Grafana + 외부 접속 프록시
+#
+# 실행:  .devcontainer/docker/compose.sh up -d --build
+# 변수는 프로젝트 루트의 .env 에서 읽습니다 (compose.sh가 연결).
+#
+# 앱 코드는 DB 주소가 127.0.0.1 이고 웹 서버도 127.0.0.1 에만 연결합니다.
+# 코드를 바꾸지 않도록 모든 서비스가 db 컨테이너의 네트워크를 공유합니다.
+# 그래서 외부 포트는 db 서비스에서만 엽니다.
+#
+#   호스트 REVIEW_PORT  → proxy:8005 → app      127.0.0.1:8765
+#   호스트 GRAFANA_PORT → proxy:8006 → grafana  127.0.0.1:3015
+#   호스트 DB_PORT      →               postgres :55438
+# 공유기가 다른 포트로 넘기면 PUBLIC_*_PORT 로 브라우저 링크용 외부 포트를 지정합니다.
+
+name: ${COMPOSE_PROJECT_NAME:-simasset-review}
+
+x-app: &app
+  image: simasset-review-app:local
+  build:
+    context: ../../review
+    dockerfile: ../.devcontainer/docker/app.Dockerfile
+    args:
+      HOST_UID: ${HOST_UID:-1000}
+      HOST_GID: ${HOST_GID:-1000}
+  network_mode: service:db
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  working_dir: /workspace/review
+  environment:
+    TZ: ${TZ:-Asia/Seoul}
+    SIMASSET_STATE_DIR: /workspace/review/.state
+    SIMASSET_DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@127.0.0.1:${POSTGRES_INTERNAL_PORT:-55438}/${POSTGRES_DB:?}
+    SIMASSET_RESULTS_DIR: /data/results
+  volumes:
+    - ../..:/workspace
+    - ${SIMASSET_RESULTS_DIR:?}:/data/results:ro
+
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C --auth-host=scram-sha-256
+      PGPORT: ${POSTGRES_INTERNAL_PORT:-55438}
+    command: ["postgres", "-c", "listen_addresses=*", "-c", "max_connections=50"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${BIND_ADDRESS:-0.0.0.0}:${REVIEW_PORT:-8005}:8005"
+      - "${BIND_ADDRESS:-0.0.0.0}:${GRAFANA_PORT:-8006}:8006"
+      - "${BIND_ADDRESS:-0.0.0.0}:${DB_PORT:-8007}:${POSTGRES_INTERNAL_PORT:-55438}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # 스키마 준비(init-db)와 Grafana 읽기 전용 계정 구성. 끝나면 종료합니다.
+  bootstrap:
+    <<: *app
+    restart: "no"
+    command: ["sh", "/workspace/.devcontainer/docker/bootstrap.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 결과 검토 화면 (README의 `simasset-review serve` 그대로). VS Code 개발 컨테이너도 여기 붙습니다.
+  app:
+    <<: *app
+    restart: unless-stopped
+    command: ["simasset-review", "serve"]
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+
+  grafana:
+    image: grafana/grafana:13.3.1
+    restart: unless-stopped
+    network_mode: service:db
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+      # grafana_readonly.py가 만든 설정·구성 파일을 그대로 사용합니다.
+      GF_PATHS_CONFIG: /workspace/review/.state/grafana/grafana.ini
+      GF_PATHS_PROVISIONING: /workspace/review/.state/grafana/provisioning
+      GF_PATHS_DATA: /workspace/review/.state/grafana/data
+      GF_PATHS_LOGS: /workspace/review/.state/grafana/logs
+      GF_PATHS_PLUGINS: /workspace/review/.state/grafana/plugins
+      GF_SERVER_HTTP_ADDR: 127.0.0.1
+      GF_SERVER_HTTP_PORT: "3015"
+      GF_SERVER_ROOT_URL: http://${PUBLIC_HOST:?}:${PUBLIC_GRAFANA_PORT:-${GRAFANA_PORT:-8006}}/
+      # 관리자 계정은 Grafana 데이터가 처음 만들어질 때만 적용됩니다.
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+    volumes:
+      - ../../review/grafana:/workspace/review/grafana:ro
+      - ../../review/.state/grafana:/workspace/review/.state/grafana
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+
+  proxy:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    network_mode: service:db
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?}
+      PUBLIC_REVIEW_PORT: ${PUBLIC_REVIEW_PORT:-${REVIEW_PORT:-8005}}
+      PUBLIC_GRAFANA_PORT: ${PUBLIC_GRAFANA_PORT:-${GRAFANA_PORT:-8006}}
+      REVIEW_AUTH_USER: ${REVIEW_AUTH_USER:?}
+      REVIEW_AUTH_PASSWORD: ${REVIEW_AUTH_PASSWORD:?}
+      NGINX_ENVSUBST_FILTER: ^(PUBLIC_HOST|PUBLIC_REVIEW_PORT|PUBLIC_GRAFANA_PORT)$$
+    volumes:
+      - ./nginx/review.conf.template:/etc/nginx/templates/review.conf.template:ro
+      - ./nginx/40-review-auth.sh:/docker-entrypoint.d/40-review-auth.sh:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

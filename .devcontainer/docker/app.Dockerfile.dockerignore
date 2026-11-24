@@ -1,0 +1,4 @@
+# 빌드 컨텍스트(review/)에서 의존성 정의만 보냅니다. .state, evidence 등은 보내지 않습니다.
+*
+!pyproject.toml
+!uv.lock

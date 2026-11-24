@@ -1,0 +1,20 @@
+{
+  "name": "SimAsset Review",
+  "dockerComposeFile": ["docker/compose.yml"],
+  "service": "app",
+  "runServices": ["db", "bootstrap", "app", "grafana", "proxy"],
+  "workspaceFolder": "/workspace",
+  "remoteUser": "dev",
+  "initializeCommand": "test -f .env && ln -sfn ../../.env .devcontainer/docker/.env && mkdir -p review/.state/grafana/data review/.state/grafana/logs review/.state/grafana/plugins",
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.cwd": "/workspace/review"
+      }
+    }
+  }
+}
