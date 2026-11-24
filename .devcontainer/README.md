@@ -6,11 +6,11 @@
 
 | 서비스 | 내용 | 외부 포트 (`.env`) |
 | --- | --- | --- |
-| `db` | PostgreSQL 16. 컨테이너 안 `127.0.0.1:55438` | `DB_PORT` (8007) |
+| `db` | PostgreSQL 16. 컨테이너 안 `127.0.0.1:55438` | `DB_PORT` |
 | `bootstrap` | `simasset-review init-db`, 처음 한 번 `scripts/grafana_readonly.py` 실행 후 종료 | 없음 |
 | `app` | `simasset-review serve` (127.0.0.1:8765). VS Code 개발 컨테이너도 여기 붙습니다 | 없음 (proxy 경유) |
 | `grafana` | Grafana OSS 13.3.1 (127.0.0.1:3015) | 없음 (proxy 경유) |
-| `proxy` | nginx. 외부 포트를 받아 앱·Grafana로 전달 | `REVIEW_PORT` (8005), `GRAFANA_PORT` (8006) |
+| `proxy` | nginx. 외부 포트를 받아 앱·Grafana로 전달 | `REVIEW_PORT`, `GRAFANA_PORT` |
 
 앱 코드는 DB 주소가 `127.0.0.1`이어야 하고, 웹 서버도 `127.0.0.1`에만 연결하며, 접속 주소(Host)도 `127.0.0.1`·`localhost`만 받습니다. 그래서 모든 서비스가 `db` 컨테이너의 네트워크를 함께 쓰고(`network_mode: service:db`), 외부 포트는 `db` 서비스에서만 엽니다. `proxy`는 다음을 처리합니다.
 
@@ -83,13 +83,15 @@ MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니�
 .devcontainer/docker/compose.sh down            # 중지 (데이터 유지)
 ```
 
-공유기가 외부 포트 18000–18010을 이 컴퓨터의 8000–8010으로 넘기는 경우:
+접속 주소는 아래 변수로 정해집니다. 공유기에서 외부 포트를 이 컴퓨터의 `REVIEW_PORT`·`GRAFANA_PORT`·`DB_PORT`로 넘기면(포트 포워딩) 외부에서도 접속할 수 있습니다.
 
 | 대상 | 외부 (`PUBLIC_HOST`) | 내부망 (이 컴퓨터 IP) |
 | --- | --- | --- |
-| 결과 검토 (기본 인증) | `http://PUBLIC_HOST:18005` | `http://<내부 IP>:8005` |
-| Grafana | `http://PUBLIC_HOST:18006/d/simasset-local-review` | `http://<내부 IP>:8006` |
-| PostgreSQL (`simasset_review`, `POSTGRES_USER`) | `PUBLIC_HOST:18007` | `<내부 IP>:8007` |
+| 결과 검토 (기본 인증) | `http://PUBLIC_HOST:PUBLIC_REVIEW_PORT` | `http://<내부 IP>:REVIEW_PORT` |
+| Grafana | `http://PUBLIC_HOST:PUBLIC_GRAFANA_PORT/d/simasset-local-review` | `http://<내부 IP>:GRAFANA_PORT` |
+| PostgreSQL (`simasset_review`, `POSTGRES_USER`) | `PUBLIC_HOST:<DB 외부 포트>` | `<내부 IP>:DB_PORT` |
+
+실제 주소와 외부 포트 번호는 공개 저장소·이슈·PR에 적지 말고 팀 안에서만 공유합니다.
 
 `REVIEW_PORT`·`GRAFANA_PORT`·`DB_PORT`는 이 컴퓨터에서 여는 포트이고, `PUBLIC_REVIEW_PORT`·`PUBLIC_GRAFANA_PORT`는 브라우저가 쓰는 외부 포트입니다. 화면 사이 링크와 Grafana 주소는 `PUBLIC_HOST`와 `PUBLIC_*_PORT`로 만듭니다. 그래서 내부망에서 접속해도 링크는 외부 주소를 가리킵니다.
 
@@ -176,6 +178,6 @@ Grafana 읽기 전용 DB 계정(`simasset_grafana_reader`)을 다시 만들려�
 
 ## 보안 주의
 
-- 8005–8007이 외부에 열립니다. 기본값 `admin/admin`은 바로 바꾸세요.
-- 8007은 PostgreSQL 관리자 계정(`POSTGRES_USER`)으로 접속됩니다. 외부 접속이 필요 없으면 `compose.yml`의 `db.ports`에서 DB 포트 줄을 지우거나, `.env`의 `BIND_ADDRESS=127.0.0.1`로 모든 포트를 이 컴퓨터 안으로 제한할 수 있습니다.
+- `BIND_ADDRESS=0.0.0.0`이면 `REVIEW_PORT`·`GRAFANA_PORT`·`DB_PORT`가 외부에 열립니다. 기본값 `admin/admin`은 바로 바꾸세요.
+- `DB_PORT`는 PostgreSQL 관리자 계정(`POSTGRES_USER`)으로 접속됩니다. 외부 접속이 필요 없으면 `compose.yml`의 `db.ports`에서 DB 포트 줄을 지우거나, `.env`의 `BIND_ADDRESS=127.0.0.1`로 모든 포트를 이 컴퓨터 안으로 제한할 수 있습니다.
 - 통신은 HTTP 평문입니다. 외부에서 쓰려면 앞단에 HTTPS를 두는 것을 권장합니다.
