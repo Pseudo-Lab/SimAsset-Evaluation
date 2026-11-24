@@ -56,9 +56,49 @@ PROBE_FIELDS = ['t', 'ball_x_mm', 'ball_y_mm', 'ball_z_mm', 'ball_local_x_mm',
                 'ball_local_y_mm', 'ball_local_z_mm', 'depth_mm', 'inside_opening',
                 'ball_speed_mm_s']
 PROFILES = {'incline': (PROFILE, METRICS), 'probe': (PROBE_PROFILE, PROBE_METRICS)}
+
+# Shared harness v4 (simasset_env v4.x, common rules v4 section 7). meta.json always carries
+# git_dirty from v4 on, which separates it from the v3 incline output with the same test name.
+V4_MARKER = 'git_dirty'
+INCLINE_V4_PROFILE = 'incline-env-v4-adapter-1'
+SETTLE_PROFILE = 'settle-env-v4-adapter-1'
+DROP_PROFILE = 'drop-env-v4-adapter-1'
+SPIN_PROFILE = 'spin-env-v4-adapter-1'
+_V4_COMMON = {'mass_kg': 'kg', 'bbox_diag_mm': 'mm', 'energy_increase_pct': '%',
+              'note': '', 'none': ''}
+INCLINE_V4_METRICS = {
+ **METRICS, 'yaw_deg': 'deg', 'travel_m': 'm', 'body_len_slope_mm': 'mm',
+ 'travel_body_lengths': '', 'travel_clamped': 'bool', 'runout_body_lengths': '',
+}
+SETTLE_METRICS = {
+ **_V4_COMMON, 'jitter': 'mm/s', 'drift': 'mm/s', 'jitter_prev': 'mm/s', 'drift_prev': 'mm/s',
+ 'amplitude': 'mm', 'settle_class': '', 'settle_class_ko': '', 'settle_time_s': 's',
+ 'rest_pen': 'mm', 'horizontal_disp_mm': 'mm', 'tilt_final_deg': 'deg', 'peak_pen': 'mm',
+ **{name + '_pct_diag': '%' for name in ('horizontal_disp', 'amplitude', 'peak_pen', 'rest_pen')},
+}
+DROP_METRICS = {
+ **_V4_COMMON, 'drop_height_mm': 'mm', 'first_contact_s': 's', 'n_impacts': 'count',
+ 'bounce_height_mm': 'mm', 'tilt_final_deg': 'deg', 'toppled': 'bool', 'peak_pen': 'mm',
+ 'settle_time_s': 's', 'rest_pen': 'mm', 'slide_mm': 'mm',
+ **{name + '_pct_diag': '%' for name in ('slide', 'peak_pen', 'rest_pen', 'bounce_height')},
+}
+SPIN_METRICS = {
+ **_V4_COMMON, 'omega_rev_s': 'rev/s', 'axis_role': '', 'expected_stable': 'bool',
+ 'decl_vs_geom_axis_deg': 'deg', 'inertia_ratio': '', 'com_offset_mm': 'mm',
+ 'axis_dev_max_deg': 'deg', 'axis_dev_final_deg': 'deg', 't_dev_10deg_s': 's',
+ 'momentum_drift_pct': '%',
+}
+TEXT_METRICS |= {'settle_class', 'settle_class_ko', 'axis_role'}
+V4_PROFILES = {'incline': (INCLINE_V4_PROFILE, INCLINE_V4_METRICS),
+               'settle': (SETTLE_PROFILE, SETTLE_METRICS),
+               'drop': (DROP_PROFILE, DROP_METRICS),
+               'spin': (SPIN_PROFILE, SPIN_METRICS)}
+# v4 spin writes expected_stable=undefined when two principal moments are equal.
+V4_UNDEFINED = {'undefined'}
 UNITS = {'mm': ('m', .001), 'mm/s': ('m/s', .001), 'deg': ('rad', math.pi/180),
          '%': ('1', .01), 'bool': ('bool', 1), '': ('1', 1),
-         's': ('s', 1), 'kg': ('kg', 1), 'm/s2': ('m/s2', 1)}
+         's': ('s', 1), 'kg': ('kg', 1), 'm/s2': ('m/s2', 1),
+         'm': ('m', 1), 'count': ('count', 1), 'rev/s': ('rad/s', 2*math.pi)}
 
 
 def canonical(value) -> str:
@@ -241,9 +281,12 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
     base = rows[0]
     if any(any(r[k] != base[k] for k in FIELDS[:8]) for r in rows):
         fail('mixed_run', '하나의 summary.csv에 다른 실행·에셋·조건·상태가 섞였습니다.')
-    if base['test'] not in PROFILES:
-        fail('unsupported_profile', f"{base['test']}: 검사별 지표 명세가 필요한 출력입니다. 현재 검증 프로필은 incline, probe입니다.")
-    profile, metric_rules = PROFILES[base['test']]
+    v4 = V4_MARKER in meta
+    profiles = V4_PROFILES if v4 else PROFILES
+    if base['test'] not in profiles:
+        fail('unsupported_profile', f"{base['test']}: 검사별 지표 명세가 필요한 출력입니다. 현재 검증 프로필은 "
+             "v3 incline·probe, v4 incline·settle·drop·spin입니다.")
+    profile, metric_rules = profiles[base['test']]
     if not base['asset_id'] or base['status'] not in STATUSES:
         fail('identity_or_status', '에셋 ID가 비었거나 알 수 없는 실행 상태입니다.')
     seed = integer(base['seed'], 'summary.seed')
@@ -258,7 +301,8 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
     ah = base['asset_sha256']
     # The shared probe writer exits before hashing when there is no cavity or
     # the source cannot be loaded. Preserve that fact; do not invent an asset hash.
-    missing_hash_allowed = base['test'] == 'probe' and STATUSES[base['status']] in ('skipped', 'error')
+    # v4 hashes the asset before loading it, so only an unreadable file leaves the hash blank.
+    missing_hash_allowed = (base['test'] == 'probe' or v4) and STATUSES[base['status']] in ('skipped', 'error')
     if not re.fullmatch('[0-9a-fA-F]{64}', ah) and not (missing_hash_allowed and ah == ''):
         fail('asset_hash', '에셋 SHA-256이 없거나 잘못되었습니다.')
     warnings = []
@@ -268,6 +312,8 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
         warnings.append('원본 실행 ID가 없어 가져오기 ID를 부여했습니다. 같은 실행의 수정본 여부는 별도 확인해야 합니다.')
     if not meta.get('git_commit'):
         warnings.append('하네스 commit이 없습니다. 보관된 출력과 어댑터 버전으로 추적합니다.')
+    if v4 and meta[V4_MARKER] is True:
+        warnings.append('하네스에 commit하지 않은 수정이 있는 상태로 실행했습니다. commit만으로는 코드를 재현할 수 없습니다.')
     warnings.append('원본에 명시적인 규약 버전·반복 번호·실행 시작/종료 시각이 없습니다. 가져온 시각을 실행 시각으로 대체하지 않습니다.')
     metrics, seen = [], set()
     for row in rows:
@@ -279,7 +325,7 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
             fail('metric_or_unit', f'{name}: 단위 {unit!r}를 승인된 지표 명세와 대조해주세요.')
         si_unit, factor = UNITS[unit]
         value, text, valid, reason = None, None, True, None
-        if raw.strip().lower() in ('nan', '') or name == 'none':
+        if raw.strip().lower() in ('nan', '') or name == 'none' or (v4 and raw.strip().lower() in V4_UNDEFINED):
             valid, reason = False, 'source_missing_or_undefined'
         elif name in TEXT_METRICS or (name == 'mu_applied' and raw == 'mixed'):
             text = raw
@@ -309,12 +355,15 @@ def parse(path: Path, sha256: str, manifest: list) -> Bundle:
                 warnings.append('공을 놓은 이후의 관측값이 없습니다. 홈 통과 여부를 확인할 수 없습니다.')
     elif base['test'] == 'probe' and any((path/name).exists() for name in ('timeseries.csv', 'timeseries_probe.csv')):
         fail('unexpected_trajectory', '실행 전 중단된 홈 검사에 시계열이 있습니다. 이전 실행 파일이 섞였는지 확인해주세요.')
+    elif v4 and any((path/name).exists() for name in ('timeseries.csv', f"timeseries_{base['test']}.csv")):
+        # v4 reuses the run folder, so a stale trajectory would otherwise attach to a skipped run.
+        fail('unexpected_trajectory', '실행 전 중단된 검사에 시계열이 있습니다. 이전 실행 파일이 섞였는지 확인해주세요.')
     asset = meta.get('asset', {})
     if not isinstance(asset, dict):
         fail('invalid_metadata', 'asset은 객체여야 합니다.')
     # The perturbation specification identifies the case; realized poses and predictions
     # belong to the run. Preserve both in raw_meta, never substitute import time for run time.
-    excluded = {'run_id', 'seed', 'mujoco', 'python', 'os', 'git_commit', 'error',
+    excluded = {'run_id', 'seed', 'mujoco', 'python', 'os', 'git_commit', V4_MARKER, 'error',
                 'perturb', 'rest_pose_quat', 'rest_settled', 'prediction'}
     config = {k: v for k, v in meta.items() if k not in excluded}
     config['asset'] = {k:v for k,v in asset.items() if k != 'path'}
