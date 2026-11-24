@@ -32,11 +32,33 @@
     bootstrap.sh
     nginx/review.conf.template
     nginx/40-review-auth.sh   # 기본 인증 파일 생성
-    storage/                  # MinIO 관리자용 (compose와 별개)
-      setup-minio.sh          # 처음 한 번: 버킷·버킷 전용 공용 계정 만들기
+    storage/                  # MinIO 공유 버킷 (compose와 별개)
+      storage.sh              # 팀원: review/evidence 올리기·받기 (push / pull / list)
+      sync.py
+      setup-minio.sh          # 관리자, 처음 한 번: 버킷·버킷 전용 공용 계정 만들기
       setup_minio.py
       storage.Dockerfile      # MinIO 공식 Python SDK (mc는 오픈소스 배포 종료)
 ```
+
+### MinIO 공유 버킷으로 결과 주고받기
+
+`review/evidence` 폴더와 버킷이 같은 구조입니다. 예를 들어 버킷의 `runs/<이름>/...`는 로컬의 `review/evidence/runs/<이름>/...`입니다. 접속 정보는 `.env`의 `MINIO_*` 값을 씁니다.
+
+```bash
+.devcontainer/docker/storage/storage.sh list                 # 버킷 내용 요약
+.devcontainer/docker/storage/storage.sh pull                 # 버킷에만 있거나 바뀐 파일 받기 (SHA-256 검증)
+.devcontainer/docker/storage/storage.sh push                 # 로컬에만 있거나 바뀐 파일 올리기
+.devcontainer/docker/storage/storage.sh pull --prefix runs/simasset-env-v4.2/   # 일부만
+.devcontainer/docker/storage/storage.sh push --dry-run       # 옮길 파일 수만 확인
+.devcontainer/docker/storage/storage.sh verify               # 서버에 저장된 내용과 로컬 파일 대조 (내려받지 않음)
+```
+
+- 파일마다 SHA-256을 버킷에 함께 저장합니다. 이미 같은 파일은 건너뜁니다.
+- 받을 때는 내려받은 내용을 검증한 뒤에만 저장합니다.
+- 올릴 때마다 버킷 루트의 `manifest.json`에 전체 파일 목록·크기·SHA-256을 다시 씁니다.
+- ZIP 파일은 올리지 않습니다. 압축을 푼 폴더만 공유합니다.
+- `push`·`pull`은 파일을 지우지 않습니다. 버킷에서 빼야 할 때는 정확한 경로를 지정해 `storage.sh remove <경로>...`를 실행합니다. 버킷은 버전 관리가 켜져 있어, 지우거나 덮어쓴 파일도 이전 버전으로 남습니다.
+- 받은 결과를 DB에 넣는 일(`simasset-review import`)은 서버 컴퓨터에서 합니다.
 
 MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니다. `.env`의 `MINIO_ACCESS_KEY`·`MINIO_SECRET_KEY`에 관리자 키를 잠시 넣고 `.devcontainer/docker/storage/setup-minio.sh`를 실행합니다. 스크립트가 하는 일은 다음과 같습니다.
 
