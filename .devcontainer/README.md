@@ -32,7 +32,19 @@
     bootstrap.sh
     nginx/review.conf.template
     nginx/40-review-auth.sh   # 기본 인증 파일 생성
+    storage/                  # MinIO 관리자용 (compose와 별개)
+      setup-minio.sh          # 처음 한 번: 버킷·버킷 전용 공용 계정 만들기
+      setup_minio.py
+      storage.Dockerfile      # MinIO 공식 Python SDK (mc는 오픈소스 배포 종료)
 ```
+
+MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니다. `.env`의 `MINIO_ACCESS_KEY`·`MINIO_SECRET_KEY`에 관리자 키를 잠시 넣고 `.devcontainer/docker/storage/setup-minio.sh`를 실행합니다. 스크립트가 하는 일은 다음과 같습니다.
+
+1. 버킷을 만들고 버전 관리를 켭니다.
+2. 그 버킷에서만 읽기·쓰기·삭제하고 버전 영구 삭제는 거부하는 정책과 계정을 만듭니다.
+3. 새 키로 권한을 확인한 뒤 `.env`의 두 키를 새 계정 키로 바꿉니다.
+
+팀원은 `.env.sample`의 MinIO 항목에 받은 값만 채웁니다.
 
 데이터 위치:
 
