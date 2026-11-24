@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(**/.env)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v python3 >/dev/null 2>&1 || exit 0; python3 -c \"import json,re,sys; c=json.load(sys.stdin).get('tool_input',{}).get('command',''); m=re.search(r'\\.env(?![A-Za-z0-9_.])', c); m and sys.stderr.write('Blocked: .env holds project secrets and must not be read by Claude. Use .env.sample for the variable names.\\n'); sys.exit(2 if m else 0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
