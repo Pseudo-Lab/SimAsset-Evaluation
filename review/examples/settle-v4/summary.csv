@@ -1,0 +1,4 @@
+run_id,asset_id,asset_sha256,test,material,condition,seed,status,metric,value,unit
+settle-guide-cube-file-base-s0,guide-cube,5090d2f89f3ffe751ec2afb5ae6d6ec80bb2613eebe09ab213cfa6522f2758dd,settle,file,base,0,ok,mass_kg,0.1,kg
+settle-guide-cube-file-base-s0,guide-cube,5090d2f89f3ffe751ec2afb5ae6d6ec80bb2613eebe09ab213cfa6522f2758dd,settle,file,base,0,ok,jitter,0.002,mm/s
+settle-guide-cube-file-base-s0,guide-cube,5090d2f89f3ffe751ec2afb5ae6d6ec80bb2613eebe09ab213cfa6522f2758dd,settle,file,base,0,ok,settle_class,still,

@@ -13,19 +13,32 @@
 
 ## 실행
 
-Python 3.11, uv, PostgreSQL 16 이상이 필요합니다. macOS에서 PostgreSQL 실행 파일이 PATH에 없으면 설치된 PostgreSQL의 `bin`을 먼저 추가합니다. 아래 명령은 이 저장소의 `review` 폴더에서 실행합니다.
+Python 3.11, uv, PostgreSQL 16 이상이 필요합니다. macOS와 Windows의 WSL Ubuntu에서 PostgreSQL 실행 파일을 준비하는 방법은 [저장소 사용 안내](../CONTRIBUTING.md#로컬에서-실행하고-확인하기)를 참고하세요. 저장소 루트에서 `cd review`로 이동해 아래 명령을 실행합니다.
 
 ```bash
-uv sync --locked --extra test --extra benchmark
-export PATH="$(brew --prefix postgresql@16)/bin:$PATH"  # Homebrew 설치인 경우
+uv sync --locked --python 3.11 --extra test --extra benchmark
 uv run python scripts/local_db.py start
+uv run python scripts/local_db.py status
 uv run simasset-review init-db
+```
+
+`status`에서 서버가 실행 중인지 확인합니다. 새 설치를 점검할 때 별도 상태 폴더를 사용하려면 시작 전에 `export SIMASSET_STATE_DIR="$(mktemp -d /tmp/sima-review.XXXXXX)"`를 실행하고 같은 터미널에서 시작·가져오기·서버 실행·종료를 진행합니다.
+
+## 샘플로 확인
+
+[가만히 두기 v4 예제](examples/settle-v4/summary.csv)는 화면 확인용으로 만든 수치 샘플입니다. 예제에는 실제 에셋과 영상이 없으므로 시계열과 측정값을 중심으로 확인합니다. 실제 검사 결과와 구분되도록 출처를 `fixture`로 저장합니다.
+
+```bash
+uv run simasset-review audit examples --expected examples/expected-settle-v4.json
+uv run simasset-review import examples/settle-v4 --namespace guide-settle-v4 --origin fixture
 uv run simasset-review serve
 ```
 
-브라우저에서 [결과 검토 화면](http://127.0.0.1:8765)을 엽니다. 서버는 로컬 주소에만 연결합니다. 로그인·권한 관리·공개 배포가 없는 개인 검토용입니다.
+`audit` 결과는 `ready_for_import: true`, 처음 가져올 때는 `imported`입니다. 같은 샘플을 다시 넣으면 `duplicate`가 표시됩니다. 브라우저에서 [결과 검토 화면](http://127.0.0.1:8765)을 열고 `guide-cube`의 **가만히 두기** 실행을 선택하면 측정값과 시계열을 볼 수 있습니다. 사용 후 [보관과 종료](#보관과-종료) 순서로 닫습니다.
 
-다른 터미널에서 실제 결과 폴더를 가져옵니다. `--namespace`는 결과 제공자·배치의 식별자이고, `--origin`은 팀 공유 원본, 직접 재현, 기능 시험 데이터를 구분합니다.
+## 팀 결과 가져오기
+
+`--namespace`는 결과 제공자나 배치를 구분하고, `--origin`은 팀 공유 원본, 직접 재현, 기능 시험 데이터를 구분합니다. 별도 상태 폴더로 검토 서버를 열었다면, 다른 터미널에서 가져올 때도 같은 `SIMASSET_STATE_DIR`을 지정합니다.
 
 ```bash
 uv run simasset-review import /absolute/path/to/result \

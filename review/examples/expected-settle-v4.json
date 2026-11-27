@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "path": "settle-v4",
+      "asset_id": "guide-cube",
+      "test": "settle",
+      "condition": "base",
+      "seed": 0,
+      "required_artifacts": ["meta.json", "summary.csv", "timeseries.csv"]
+    }
+  ]
+}

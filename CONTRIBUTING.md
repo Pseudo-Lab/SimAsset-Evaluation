@@ -18,29 +18,10 @@ Git, `uv`, Python 3.11, PostgreSQL 16 이상이 필요합니다. JavaScript 테�
 ```bash
 cd ~
 git clone https://github.com/Pseudo-Lab/SimAsset-Evaluation.git
-cd SimAsset-Evaluation/review
-uv sync --locked --python 3.11 --extra test --extra benchmark
-uv run python scripts/local_db.py start
-uv run python scripts/local_db.py status
-uv run simasset-review init-db
-uv run simasset-review serve
+cd SimAsset-Evaluation
 ```
 
-브라우저에서 [결과 검토 화면](http://127.0.0.1:8765)을 엽니다. 같은 저장소를 이미 복제했다면 그 안의 `review/`에서 실행하면 됩니다. 결과 파일을 가져오는 방법은 [결과 검토 도구 안내](review/README.md#실행)에 있습니다.
-
-DB가 실행 중이면 다른 터미널의 `review/`에서 관련 검사를 실행합니다.
-
-```bash
-uv run pytest -q
-node --test tests/*.test.mjs
-uv run python scripts/build_grafana_languages.py --check
-```
-
-웹 서버 터미널에서 `Ctrl+C`를 누른 뒤 같은 `review/` 폴더에서 아래 명령으로 전용 로컬 DB를 종료합니다.
-
-```bash
-uv run python scripts/local_db.py stop
-```
+이 저장소를 이미 복제했다면 해당 폴더에서 시작합니다. [로컬 시작](review/README.md#실행)에서 DB의 `start`·`status`와 화면 실행까지, [샘플로 확인](review/README.md#샘플로-확인)에서 결과를 보는 절차를 따라갈 수 있습니다. 작업 후에는 [보관과 종료](review/README.md#보관과-종료)의 `stop` 명령을 사용합니다. 코드 수정에 필요한 검사 명령은 [검증과 다음 연결](review/README.md#검증과-다음-연결)에 있습니다.
 
 ## 첫 PR 올리기
 

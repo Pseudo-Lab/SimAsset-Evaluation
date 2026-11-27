@@ -1,0 +1,21 @@
+{
+  "run_id": "settle-guide-cube-file-base-s0",
+  "test": "settle",
+  "condition": "base",
+  "seed": 0,
+  "mujoco": "3.17.0",
+  "timestep": 0.002,
+  "git_dirty": false,
+  "asset": {"mass_kg": 0.1},
+  "timeseries_units": {
+    "t": "s",
+    "x": "mm",
+    "y": "mm",
+    "z": "mm",
+    "q*": "unit quaternion (world)",
+    "v*": "mm/s (center of mass, world)",
+    "w*": "deg/s (world)",
+    "ncon": "count (asset contacts)",
+    "max_pen": "mm (max penetration depth)"
+  }
+}
