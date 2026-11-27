@@ -93,7 +93,10 @@ MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니�
 | --- | --- | --- |
 | 결과 검토 (기본 인증) | `http://PUBLIC_HOST:PUBLIC_REVIEW_PORT` | `http://<내부 IP>:REVIEW_PORT` |
 | Grafana | `http://PUBLIC_HOST:PUBLIC_GRAFANA_PORT/d/simasset-local-review` | `http://<내부 IP>:GRAFANA_PORT` |
+| Grafana 에셋별 측정값 비교 | `http://PUBLIC_HOST:PUBLIC_GRAFANA_PORT/d/simasset-asset-compare` | `http://<내부 IP>:GRAFANA_PORT/d/simasset-asset-compare` |
 | PostgreSQL (`simasset_review`, `POSTGRES_USER`) | `PUBLIC_HOST:<DB 외부 포트>` | `<내부 IP>:DB_PORT` |
+
+에셋별 측정값 비교 대시보드는 검사와 지표를 고르면 에셋마다 대표값·분포와 전체 중앙값에서 먼 실행을 보여 줍니다. 값은 공통규약의 단위(mm, mm/s, °, %)로 표시하고, 0/1 지표는 1인 실행의 비율로 보여 줍니다. 현재 뷰에 실행 조건이 없어 조건·seed를 합쳐 계산하므로 판정은 결과 검토 화면에서 영상으로 남깁니다.
 
 실제 주소와 외부 포트 번호는 공개 저장소·이슈·PR에 적지 말고 팀 안에서만 공유합니다.
 
