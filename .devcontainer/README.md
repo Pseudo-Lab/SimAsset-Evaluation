@@ -1,6 +1,6 @@
 # 결과 검토 도구 컨테이너 환경
 
-`review/` 결과 검토 도구를 Docker 안에서 실행합니다. 호스트에는 Docker 외에 아무것도 설치하지 않습니다. 저장소의 코드와 스크립트는 수정하지 않고 그대로 호출합니다.
+`review/` 결과 검토 도구와 Grafana를 Docker에서 실행합니다. 호스트에서는 Bash를 사용할 수 있는 터미널과 Docker Compose를 준비합니다. 로컬에서 검토 도구만 열려면 [결과 검토 도구 안내](../review/README.md#실행)의 전용 DB로 시작할 수 있습니다.
 
 ## 구성
 
@@ -76,6 +76,10 @@ MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니�
 
 ## 실행
 
+저장소 루트에 `.env`를 준비합니다. 처음이면 [설정 견본](../.env.sample)을 `.env`로 복사하고, `SIMASSET_RESULTS_DIR`에는 호스트에서 결과가 있는 폴더의 절대 경로를 적습니다. `PUBLIC_HOST`는 호스트명 또는 IP이며, 브라우저에서 쓰는 포트는 `PUBLIC_REVIEW_PORT`와 `PUBLIC_GRAFANA_PORT`입니다. 로컬에서만 점검할 때는 `BIND_ADDRESS=127.0.0.1`로 지정합니다.
+
+아래 명령은 저장소 루트에서 실행합니다.
+
 ```bash
 .devcontainer/docker/compose.sh up -d --build   # 처음 또는 이미지 변경 시
 .devcontainer/docker/compose.sh ps
@@ -103,7 +107,7 @@ MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니�
 
 ## 결과 가져오기와 테스트
 
-결과 폴더를 `SIMASSET_RESULTS_DIR` 아래에 두고 컨테이너 안 경로로 지정합니다. 저장소 README의 명령과 같습니다.
+결과 폴더와 예상 목록을 호스트의 `SIMASSET_RESULTS_DIR` 아래에 둡니다. 컨테이너에서는 이 폴더를 `/data/results`로 읽습니다. 아래 명령의 경로를 실제 배치와 목록 이름으로 바꾼 뒤 먼저 `audit` 결과를 확인합니다.
 
 ```bash
 .devcontainer/docker/compose.sh exec app simasset-review audit /data/results/<batch> --expected /data/results/<expected.json>
