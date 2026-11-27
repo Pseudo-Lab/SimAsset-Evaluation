@@ -40,6 +40,8 @@ uv run simasset-review serve
 
 `--namespace`는 결과 제공자나 배치를 구분하고, `--origin`은 팀 공유 원본, 직접 재현, 기능 시험 데이터를 구분합니다. 별도 상태 폴더로 검토 서버를 열었다면, 다른 터미널에서 가져올 때도 같은 `SIMASSET_STATE_DIR`을 지정합니다.
 
+팀에서 받은 배치는 먼저 [결과 묶음 점검](docs/결과_묶음_점검.md)으로 확인합니다. 팀 서버 적재 담당자에게 전달할 항목도 이 안내에 있습니다.
+
 ```bash
 uv run simasset-review import /absolute/path/to/result \
   --namespace shared-incline-20261117 --origin team_shared
@@ -48,7 +50,7 @@ uv run simasset-review import /absolute/path/to/result \
 uv run simasset-review audit /absolute/path/to/result-batch \
   --expected /absolute/path/to/expected.json
 
-# summary.csv뿐 아니라 meta.json·시계열만 남은 불완전한 폴더도 검사합니다.
+# 점검을 통과한 배치를 실행별 하위 폴더에서 가져옵니다.
 uv run simasset-review import /absolute/path/to/result-batch \
   --recursive --namespace shared-incline-20261117 --origin team_shared
 ```

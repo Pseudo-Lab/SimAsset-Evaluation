@@ -6,3 +6,4 @@
 - PR 제목은 `[Feat]`, `[Fix]`, `[Docs]`처럼 작업 유형으로 시작합니다. 작업에 맞는 방법으로 확인하고, PR 본문에 확인한 범위와 추가 확인이 필요한 부분을 남깁니다.
 - PR을 준비할 때는 [`pr-prep` 스킬](.agents/skills/pr-prep/SKILL.md)을 참고합니다.
 - 저장소 문서를 작성하거나 기존 안내를 점검할 때는 [`docs-update` 스킬](.agents/skills/docs-update/SKILL.md)을 참고합니다.
+- 검사 결과 묶음의 누락·중복·충돌을 확인할 때는 [`result-audit` 스킬](.agents/skills/result-audit/SKILL.md)을 참고합니다.

@@ -107,7 +107,7 @@ MinIO 버킷과 공용 계정은 MinIO 관리자가 처음 한 번만 만듭니�
 
 ## 결과 가져오기와 테스트
 
-결과 폴더와 예상 목록을 호스트의 `SIMASSET_RESULTS_DIR` 아래에 둡니다. 컨테이너에서는 이 폴더를 `/data/results`로 읽습니다. 아래 명령의 경로를 실제 배치와 목록 이름으로 바꾼 뒤 먼저 `audit` 결과를 확인합니다.
+결과 폴더와 예상 목록을 호스트의 `SIMASSET_RESULTS_DIR` 아래에 둡니다. 컨테이너에서는 이 폴더를 `/data/results`로 읽습니다. 아래 명령의 경로를 실제 배치와 목록 이름으로 바꾼 뒤 먼저 `audit` 결과를 확인합니다. 오류 코드와 인계할 항목은 [결과 묶음 점검](../review/docs/결과_묶음_점검.md)을 참고하세요.
 
 ```bash
 .devcontainer/docker/compose.sh exec app simasset-review audit /data/results/<batch> --expected /data/results/<expected.json>
