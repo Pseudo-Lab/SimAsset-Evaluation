@@ -1,0 +1,319 @@
+{
+  "uid": "simasset-asset-compare",
+  "title": "SimAsset · 에셋별 측정값 비교",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "refresh": "",
+  "timezone": "browser",
+  "tags": [
+    "simasset-evaluation"
+  ],
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "",
+      "transparent": true,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 6
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**에셋별 측정값 비교** · 검사와 지표를 고르면 에셋끼리 값을 나란히 봅니다. 영상을 보기 전에 어느 에셋·실행부터 볼지 고르는 보조 화면이며, 통과·불통과 판정은 결과 검토 화면에서 영상을 보고 남깁니다.\n\n- 값은 [공통규약 6장](https://github.com/Pseudo-Lab/SimAsset-Evaluation/blob/main/docs/검사환경-공통규약-전체본_v4.md#6-정지-판정과-지표)과 지표 이름의 단위(mm, mm/s, °, %)로 바꿔 보여 줍니다. 0/1 지표(`toppled` 등)는 1인 실행의 비율입니다.\n- 지금 DB 뷰에는 실행 조건(빗면 방향·낙하 각도 등)이 없어 **한 에셋의 모든 조건·seed를 합쳐** 계산합니다.\n- 어느 쪽 값이 나쁜지는 지표마다 다르고 기준선도 아직 없습니다. 아래 실행 목록은 크기와 상관없이 **전체 중앙값에서 먼 순서**입니다.\n- \"값 없음\"은 계산되지 않은 실행입니다(예: 기준 각도에 도달하지 않음). 0으로 채우지 않습니다. 둥근 에셋은 구름 저항이 없어 떨림·이동이 크게 나올 수 있습니다(규약 6장)."
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "barchart",
+      "title": "에셋별 대표값 · ${metric} (${unit})",
+      "description": "에셋마다 중앙값입니다. 0/1 지표는 1인 실행의 비율입니다. 같은 에셋의 모든 조건·seed를 합친 값입니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 10,
+        "h": 11
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT asset AS \"에셋\",\n       CASE WHEN max(unit) = 'bool' THEN avg(metric_value)\n            ELSE percentile_cont(0.5) WITHIN GROUP (ORDER BY metric_value) END * ${scale} AS \"대표값\"\nFROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}' AND metric_text IS NULL AND valid\nGROUP BY asset\nORDER BY 2 DESC, 1",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "xField": "에셋",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 0
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "에셋별 분포 · ${metric} (${unit})",
+      "description": "최솟값과 최댓값 차이가 크면 조건이나 seed에 따라 결과가 갈리는 에셋입니다. 값 없음은 계산되지 않은 실행 수입니다.",
+      "gridPos": {
+        "x": 10,
+        "y": 6,
+        "w": 14,
+        "h": 11
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "SELECT asset AS \"에셋\",\n       count(*) AS \"실행\",\n       count(*) FILTER (WHERE NOT valid) AS \"값 없음\",\n       min(metric_value) FILTER (WHERE valid) * ${scale} AS \"최솟값\",\n       percentile_cont(0.5) WITHIN GROUP (ORDER BY metric_value) FILTER (WHERE valid) * ${scale} AS \"중앙값\",\n       avg(metric_value) FILTER (WHERE valid) * ${scale} AS \"평균\",\n       max(metric_value) FILTER (WHERE valid) * ${scale} AS \"최댓값\"\nFROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}' AND metric_text IS NULL\nGROUP BY asset\nORDER BY 1",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3,
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "실행|값 없음"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "전체 중앙값에서 먼 실행 30개 · ${metric} (${unit})",
+      "description": "모든 에셋의 실행 가운데 값이 전체 중앙값에서 가장 먼 실행입니다. 실행 보기를 누르면 결과 검토 화면에서 영상과 측정값을 엽니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "simasset-local-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "simasset-local-postgres"
+          },
+          "rawSql": "WITH runs AS (\n  SELECT asset, seed, run_id, metric_value * ${scale} AS v\n  FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}' AND metric_text IS NULL AND valid\n), mid AS (SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY v) AS v FROM runs)\nSELECT runs.asset AS \"에셋\", runs.seed, runs.v AS \"값\", runs.v - mid.v AS \"전체 중앙값과 차이\", runs.run_id\nFROM runs CROSS JOIN mid\nORDER BY abs(runs.v - mid.v) DESC, runs.run_id\nLIMIT 30",
+          "format": "table",
+          "rawQuery": true
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3,
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "seed"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "실행 보기"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "결과 검토 화면에서 열기",
+                    "targetBlank": true,
+                    "url": "http://127.0.0.1:8765/?lang=ko#${__data.fields.run_id}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "test",
+        "label": "검사",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "simasset-local-postgres"
+        },
+        "query": "SELECT DISTINCT test_type FROM review.v_run_metrics ORDER BY 1",
+        "definition": "SELECT DISTINCT test_type FROM review.v_run_metrics ORDER BY 1",
+        "refresh": 1,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "metric",
+        "label": "지표",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "simasset-local-postgres"
+        },
+        "query": "SELECT metric_name FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_text IS NULL GROUP BY metric_name HAVING max(metric_value) > min(metric_value) ORDER BY 1",
+        "definition": "SELECT metric_name FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_text IS NULL GROUP BY metric_name HAVING max(metric_value) > min(metric_value) ORDER BY 1",
+        "refresh": 1,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "scale",
+        "label": "표시 배율",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "simasset-local-postgres"
+        },
+        "query": "SELECT CASE WHEN '${metric}' LIKE '%\\_pct%' THEN 100\n            WHEN '${metric}' LIKE '%\\_m' THEN 1\n            WHEN max(unit) IN ('m', 'm/s') THEN 1000\n            WHEN max(unit) = 'rad' THEN 180 / pi()\n            WHEN max(unit) = 'rad/s' THEN 1 / (2 * pi())\n            ELSE 1 END FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}'",
+        "definition": "SELECT CASE WHEN '${metric}' LIKE '%\\_pct%' THEN 100\n            WHEN '${metric}' LIKE '%\\_m' THEN 1\n            WHEN max(unit) IN ('m', 'm/s') THEN 1000\n            WHEN max(unit) = 'rad' THEN 180 / pi()\n            WHEN max(unit) = 'rad/s' THEN 1 / (2 * pi())\n            ELSE 1 END FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}'",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "hide": 2
+      },
+      {
+        "name": "unit",
+        "label": "단위",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "simasset-local-postgres"
+        },
+        "query": "SELECT CASE WHEN '${metric}' LIKE '%\\_pct%' THEN '%'\n            WHEN '${metric}' LIKE '%\\_m' THEN 'm'\n            WHEN max(unit) = 'm' THEN 'mm'\n            WHEN max(unit) = 'm/s' THEN 'mm/s'\n            WHEN max(unit) = 'rad' THEN '°'\n            WHEN max(unit) = 'rad/s' THEN 'rev/s'\n            WHEN max(unit) = 'bool' THEN '1인 비율'\n            WHEN max(unit) = '1' THEN '단위 없음'\n            ELSE max(unit) END FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}'",
+        "definition": "SELECT CASE WHEN '${metric}' LIKE '%\\_pct%' THEN '%'\n            WHEN '${metric}' LIKE '%\\_m' THEN 'm'\n            WHEN max(unit) = 'm' THEN 'mm'\n            WHEN max(unit) = 'm/s' THEN 'mm/s'\n            WHEN max(unit) = 'rad' THEN '°'\n            WHEN max(unit) = 'rad/s' THEN 'rev/s'\n            WHEN max(unit) = 'bool' THEN '1인 비율'\n            WHEN max(unit) = '1' THEN '단위 없음'\n            ELSE max(unit) END FROM review.v_run_metrics WHERE test_type = '${test}' AND metric_name = '${metric}'",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "hide": 2
+      }
+    ]
+  },
+  "description": "검사별로 여러 에셋의 측정값을 나란히 비교합니다.",
+  "timepicker": {
+    "hidden": true
+  },
+  "links": [
+    {
+      "title": "결과 검토 화면",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:8765/?lang=ko",
+      "targetBlank": true
+    },
+    {
+      "title": "검사 결과 현황",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "http://127.0.0.1:3015/d/simasset-local-review",
+      "targetBlank": false
+    }
+  ]
+}

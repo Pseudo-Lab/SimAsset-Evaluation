@@ -1,7 +1,10 @@
 """Exercise the shipped dashboard queries against real PostgreSQL fixtures."""
 import json
+import re
 import importlib.util
 from pathlib import Path
+
+import pytest
 
 from conftest import edit_csv
 from simasset_review.db import import_bundle, add_judgment
@@ -81,3 +84,45 @@ def test_overview_counts_runs_not_metrics_or_multiple_judgments(database,bundle,
     assert after[11]['assets']-before[11]['assets']==1
     assert after[12]['errors']==before[12]['errors']
     assert after[13]['reviewed']-before[13]['reviewed']==1
+
+
+def test_asset_compare_uses_protocol_units_rates_and_keeps_missing_values(database,bundle,namespace):
+    dashboard=json.loads((Path(__file__).parents[1]/'grafana/asset-compare.json').read_text(encoding='utf-8'))
+    variables={v['name']:v['query'] for v in dashboard['templating']['list']}
+    queries={p['id']:p['targets'][0]['rawSql'] for p in dashboard['panels'] if p.get('targets')}
+    # Grafana's reader role may only SELECT the granted views.
+    for sql in [*variables.values(),*queries.values()]:
+        assert set(re.findall(r'review\.(\w+)',sql))<={'v_run_metrics'}
+    links=[link['url'] for panel in dashboard['panels'] for o in panel.get('fieldConfig',{}).get('overrides',[])
+           for p in o['properties'] if p['id']=='links' for link in p['value']]
+    assert links==['http://127.0.0.1:8765/?lang=ko#${__data.fields.run_id}']
+
+    good,bad='compare-good-'+namespace,'compare-bad-'+namespace
+    edit_csv(bundle/'summary.csv',lambda rows:[r.update(asset_id=good) for r in rows])
+    import_bundle(database,bundle,namespace+'-good','fixture')
+    def worse(rows):
+        for r in rows:
+            r.update(asset_id=bad)
+            r.update(value={'peak_pen':'2.5','left_ramp':'0'}.get(r['metric'],r['value']))
+    edit_csv(bundle/'summary.csv',worse)
+    bad_run=import_bundle(database,bundle,namespace+'-bad','fixture')['run_id']
+
+    def run(sql,metric,scale=''):
+        sql=sql.replace('${test}','incline').replace('${metric}',metric).replace('${scale}',scale)
+        with database.connect() as conn: return conn.execute(sql).fetchall()
+    def selected(sql,metric):
+        scale=str(next(iter(run(variables['scale'],metric)[0].values())))
+        return {r['에셋']:r for r in run(sql,metric,scale) if r['에셋'] in (good,bad)}
+    first=lambda sql,metric:next(iter(run(sql,metric)[0].values()))
+    assert [first(variables['unit'],m) for m in ('peak_pen','left_ramp','accel_err_pct')]==['mm','1인 비율','%']
+
+    # Stored SI values return in protocol units; 0/1 metrics become a rate, not a median.
+    bars=selected(queries[2],'peak_pen')
+    assert (bars[good]['대표값'],bars[bad]['대표값'])==(pytest.approx(1.25),pytest.approx(2.5))
+    rates=selected(queries[2],'left_ramp')
+    assert (rates[good]['대표값'],rates[bad]['대표값'])==(1,0)
+    # A NaN result is counted as missing, never as 0.
+    missing=selected(queries[3],'accel_err_pct')[good]
+    assert (missing['실행'],missing['값 없음'],missing['최솟값'])==(1,1,None)
+    far=run(queries[4],'peak_pen',str(first(variables['scale'],'peak_pen')))
+    assert bad_run in [str(r['run_id']) for r in far]
